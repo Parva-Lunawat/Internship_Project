@@ -1,0 +1,30 @@
+body {
+    font-family: 'Times New Roman', Times, serif;
+    margin: 60px 1% 1% 0px; /*top right bottom left*/
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #F9F9F9;
+}
+.main-navigation {
+    display:flex;
+    flex-direction: row; 
+    background-color: #7873F7;
+    position: fixed;
+    width: 100%;
+    top: 0px;
+    left: 0px;
+    justify-content: center; /*horiz alignment in row + vert in col*/
+    align-items: center; /*vertical alignment in row */
+    align-content: center; /*alignment but in multiple lines if wrapped around*/
+    overflow: hidden;
+}
+.main-navigation a {
+    color: white;
+    padding: 14px 20px 14px 20px; /*top right bottom left*/
+    font-size: 18px;
+}
+.main-navigation a:hover {
+    background-color: #5752d6;
+    color: white;
+    border-radius: 20px;
+}
