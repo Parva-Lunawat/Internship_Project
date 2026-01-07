@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CODAL | Landing</title>
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+
+  <!-- Skip link for accessibility (bonus, Phase-1 aligned) -->
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <nav class="main-navigation" aria-label="Main navigation">
+      <a class="brand" href="Base_Landing_Page.html">CODAL</a>
+
+      <ul class="nav-links">
+        <li><a class="nav-link active" href="Base_Landing_Page.html" aria-current="page">Home</a></li>
+        <li><a class="nav-link" href="Base_About_Page.html">About</a></li>
+        <li><a class="nav-link" href="Base_Contact_Page.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main" class="container">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Welcome to <span class="highlight">CODAL</span></h1>
+        <p class="subtitle">
+          CODAL = (CO)de + (D)evelopment + Port(AL) — a simple place to learn, build, and ship.
+        </p>
+
+        <div class="cta">
+          <a class="btn primary" href="Base_Contact_Page.html">Get Started</a>
+          <a class="btn" href="Base_About_Page.html">Learn More</a>
+        </div>
+
+        <p class="helper-text">
+          Beginner-friendly. Clean UI. Built with semantic HTML + responsive CSS.
+        </p>
+      </div>
+
+      <div class="hero-art" aria-hidden="true">
+        <div class="mock-card">
+          <p class="mock-title">Phase 1</p>
+          <p class="mock-line">HTML • CSS • Git</p>
+          <p class="mock-line">Responsive Layout</p>
+          <p class="mock-line">PR + Code Review</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section">
+      <h2 class="section-title">What you get</h2>
+      <p class="section-desc">A clean foundation to practice real developer workflows.</p>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Semantic HTML</h3>
+          <p>Clear structure using header, nav, main, section, and footer.</p>
+        </article>
+
+        <article class="card">
+          <h3>Responsive CSS</h3>
+          <p>Flexbox-based layout that adapts smoothly to mobile and desktop.</p>
+        </article>
+
+        <article class="card">
+          <h3>Git Workflow</h3>
+          <p>Commits, branches, PRs, and code review readiness from Day 1.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Login (UI only) -->
+    <section class="section">
+      <h2 class="section-title">Login (UI Demo)</h2>
+      <p class="section-desc">This is a UI-only form for Phase-1 practice.</p>
+
+      <form class="card form" action="#" method="post">
+        <div class="form-row">
+          <label for="username">Username</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            autocomplete="username"
+            placeholder="e.g. parva123"
+            required
+          />
+        </div>
+
+        <div class="form-row">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            autocomplete="current-password"
+            placeholder="••••••••"
+            required
+          />
+        </div>
+
+        <button class="btn primary" type="submit">Submit</button>
+      </form>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© 2026 CODAL. Built for Phase-1 Web Foundations.</p>
+      <p class="footer-links">
+        <a href="Base_About_Page.html">About</a>
+        <span aria-hidden="true">•</span>
+        <a href="Base_Contact_Page.html">Contact</a>
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
