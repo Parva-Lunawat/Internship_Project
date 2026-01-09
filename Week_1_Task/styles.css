@@ -395,7 +395,7 @@ main {
 }
 
 .card {
-    padding: 18px;
+    padding: 20px;
     border-radius: var(--radius-lg);
     border: 1px solid rgba(124, 58, 237, 0.22);
     background-color: rgba(245, 240, 255, 0.75);
@@ -403,6 +403,8 @@ main {
     box-shadow: 0 10px 24px rgba(42, 15, 78, 0.10);
     transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
     position: relative;
+    margin: 5px;
+    /* overflow: hidden; */
 }
 .singular-desc-card {
     /* width: 100%; */
@@ -455,10 +457,41 @@ main {
     opacity: 0.75;
 }
 
+.card-reveal{
+    position: absolute;
+    width: 100%;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    opacity: 100%;
+    padding: 10px 10px;
+    transform: translateY(100%);
+    opacity: 0;
+    border-radius: var(--radius-lg);
+    border: 1px solid black;
+    backdrop-filter: blur(20px);
+    transition: transform ease 220ms, opacity 220ms ease;
+}
+
+.reveal-title{
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin: 10px 0 8px;
+    opacity: 0.85;
+}
+
 .card:hover {
     transform: translateY(-4px);
     border-color: rgba(124, 58, 237, 0.55);
     background-color: rgba(237, 231, 255, 0.85);
+}
+
+.card:hover .card-reveal,
+.card:focus-within .card-reveal{
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .card h3 {
@@ -478,11 +511,14 @@ main {
 
 .tag-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
 }
 .tag {
+    display: inline-flex;
     border: 1px solid rgba(124, 58, 237, 0.55);
     padding: 5px 5px;
+    font-weight: 700;
     border-radius: var(--radius-pill);
     background-color: var(--blue-200);
 }
@@ -678,6 +714,7 @@ footer {
 
     .cards {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
 
     .footer-inner {
@@ -692,9 +729,9 @@ footer {
     }
 }
 
-/* Default = LIGHT THEME (already defined in :root) */
+/* Default = LIGHT THEME*/
 
-/* When switch is ON → DARK THEME */
+/* switch is ON → DARK THEME */
 html:has(.switch input:checked) {
     --primary-color: #a78bfa;
     --primary-hover-color: #8b5cf6;
