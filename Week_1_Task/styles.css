@@ -52,11 +52,10 @@ body {
             rgba(124, 58, 237, 0.18) 70px,
             rgba(124, 58, 237, 0.18) 72px,
             transparent 72px,
-            transparent 100px),
-        radial-gradient(circle at center, #f7f2ff, #ffffff 25%);
+            transparent 100px);
 
-    background-size: 100px 100px, 100px 100px, 100px 100px, 100px 100px, 10px 10px, 100% 100%;
-    background-position: 50px 50px, 0px 0px, 0px 0px, 0px 0px, 0px 0px, 0px 0px;
+    background-size: 100px 100px, 100px 100px, 100px 100px, 100px 100px, 10px 10px;
+    background-position: 50px 50px, 0px 0px, 0px 0px, 0px 0px, 0px 0px;
 
     /* background-attachment: fixed; */
 
@@ -172,7 +171,7 @@ nav {
     border-radius: 34px;
 }
 
-.slider:before {
+.slider::before {
     position: absolute;
     content: "";
     height: 26px;
@@ -700,7 +699,14 @@ footer {
         width: 100%;
     }
 
-    .section-image {
+    .section-image-light {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 12px;
+        background-color: rgba(255, 255, 255, 0.25);
+    }
+    .section-image-dark {
         width: 100%;
         display: flex;
         justify-content: center;
