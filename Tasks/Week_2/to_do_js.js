@@ -5,6 +5,7 @@
 // window.alert("vbeurtvique")
 
 let todos = [];
+let currentFilter = "All";
 // Data Model
 // add obj to todos list to display
 function addTodos(head, text, priority) {
@@ -19,15 +20,16 @@ function addTodos(head, text, priority) {
     renderList();
 }
 
-// Data/ID-Content Fetcher
+// Data Fetcher
 const list = document.getElementById("todo-list");
 const form = document.getElementById("todo-form");
 const header = document.getElementById("task-header-input");
 const input = document.getElementById("task-input");
 const priority = document.getElementById("priority");
-const totalCount = document.getElementById("Total_count")
-const activeCount = document.getElementById("Active_count")
-const completedCount = document.getElementById("Completed_count")
+const totalCount = document.getElementById("Total_count");
+const activeCount = document.getElementById("Active_count");
+const completedCount = document.getElementById("Completed_count");
+const filterContainer = document.querySelector(".todo-filter");
 
 function todoToggler(id) {
     todos = todos.map(todo =>
@@ -46,10 +48,20 @@ function deleteTodo(id) {
 function renderList() {
     list.innerHTML = "";
     let currTotal = 0, currActive = 0, currComp = 0;
-    todos.forEach(todo => {
-        if (todo.completed) currComp += 1;
-        else currActive += 1;
 
+    todos.forEach(todo => {
+        if (todo.completed) currComp++;
+        else currActive++;
+        currTotal++;
+    });
+
+    const filteredTodos = todos.filter(todo => {
+        if (currentFilter === "Active") return !todo.completed;
+        if (currentFilter === "Completed") return todo.completed;
+        return true;
+    });
+
+    filteredTodos.forEach(todo => {
         const li = document.createElement("li");
         li.style.listStyleType="none";
         li.innerHTML = `
@@ -75,12 +87,25 @@ function renderList() {
             deleteTodo(todo.id);
         });
         list.append(li);
-        currTotal += 1;
     });
     totalCount.innerText = `Total: ${currTotal}`;
     activeCount.innerText = `Active: ${currActive}`;
     completedCount.innerText = `Completed: ${currComp}`;
 }
+
+function updateUI(activeBtn) {
+    document
+        .querySelectorAll(".todo-filter-b")
+        .forEach(btn => btn.classList.remove("active"));
+    activeBtn.classList.add("active");
+}
+
+filterContainer.addEventListener("click", (e) => {
+    if (!e.target.matches(".todo-filter-b")) return;
+    currentFilter = e.target.dataset.filter;
+    updateUI(e.target);
+    renderList();
+});
 
 // function todo
 

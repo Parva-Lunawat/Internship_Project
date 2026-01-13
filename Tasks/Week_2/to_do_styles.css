@@ -94,12 +94,13 @@
     display: flex;
     flex-wrap: wrap;
     align-items: stretch;
-    gap: 12px;
+    gap: 0px;
     padding: 4px 0;
 }
 .todo-card {
     display: flex;
     flex-direction: column;
+    flex-wrap: wrap;
     gap: 10px;
     padding: 20px;
     border-radius: var(--radius-lg);

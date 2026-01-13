@@ -14,17 +14,17 @@ JavaScript Values
     Literals: fixed int dec normal; string etc in "" or ''
 
 Keywords: def actions to be performed
-    var	                   Declares a variable
-    let	                   Declares a block variable
+    var	                    Declares a variable
+    let	                    Declares a block variable
                                 BOTH Block Scope + non-redeclarable + must be declared before use + no binding to 'this' + not hoisted
                                 Unlike var -> Global scope + redeclarable in diff scopes + hoisted
-    const	               Declares a block constant
-    if	                   Marks a block of statements to be executed on a condition
-    switch	               Marks a block of statements to be executed in different cases
-    for	                   Marks a block of statements to be executed in a loop
-    function	           Declares a function
-    return	               Exits a function
-    try	                   Implements error handling to a block of statements
+    const	                Declares a block constant
+    if	                    Marks a block of statements to be executed on a condition
+    switch	                Marks a block of statements to be executed in different cases
+    for	                    Marks a block of statements to be executed in a loop
+    function	            Declares a function
+    return	                Exits a function
+    try	                    Implements error handling to a block of statements
 
 && (AND): Returns the first falsy operand or the last operand if all are truthy.
 || (OR): Returns the first truthy operand or the last operand if all are falsy.
