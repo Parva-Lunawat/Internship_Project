@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CODAL | PARVA</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../mobile_style.css">
+    <link rel="stylesheet" href="../dark_theme_style.css">
+    <link rel="stylesheet" href="to_do_styles.css">
+</head>
+
+<body>
+    <header>
+        <nav aria-label="Main">
+            <a class="nav-link" href="#">PARVA LUNAWAT</a>
+            <a class="nav-logo" href="#">PL</a>
+            <ul class="nav-links">
+                <li><a class="nav-link active" href="../Lander_Page.html" aria-current="page">Home</a></li>
+                <li><a class="nav-link" href="../Projects_Page.html">Projects</a></li>
+                <li>
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider round"></span>
+                    </label>
+                </li>
+            </ul>
+            <p class="nav-button"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+            </p>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="todo">
+            <section class="todo-header">
+                <div>
+                    <h1>To - Do List</h1>
+                </div>
+                <div class="tag-row">
+                    <span class="tag" id="Total_count">Total: 0</span>
+                    <span class="tag" id="Active_count">Active: 0</span>
+                    <span class="tag" id="Completed_count">Completed: 0</span>
+                </div>
+            </section>
+            
+            <form class="todo-maker-form card" id="todo-form" autocomplete="off">
+                <div class="todo-form-row">
+                    <label class="todo-label" for="task-input">Plan your Tasks</label>
+                    <div class="todo-form-col">
+                        <input style="width:25%;" id="task-header-input" class="todo-input" type="text" placeholder="Note Header" required />                        
+                        <input style="width:75%;" id="task-input" class="todo-input" type="text" placeholder="Ex. Make cake by 2pm" required />
+                    </div>
+                </div>
+                <div class="todo-form-row">
+                    <label class="todo-label" for="priority">Priority</label>
+                    <select id="priority" class="todo-select">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <button class="button" type="submit">Add Task</button>
+            </form>
+
+            <div class="todo-filter card">
+                <button class="todo-filter-b active" type="button" data-filter="Active">All Tasks</button>
+                <button class="todo-filter-b" type="button" data-filter="Active">Active Tasks</button>
+                <button class="todo-filter-b" type="button" data-filter="Active">Completed Tasks</button>         
+            </div>
+
+            <div id="todo-list" class="todo-list-cards">
+                <!-- javascript insertion -->
+            </div>
+
+        </section>
+
+
+        <br><br>
+        <br><br>
+
+    </main>
+    <script src="to_do_js.js"></script>
+    <footer>
+        <div class="footer-inner">
+            <p class="footer-link">© 2026 PARVA</p>
+            <p class="footer-link">
+                <a href="Base_Landing_Page.html">Home</a>
+                <span aria-hidden="true">•</span>
+                <a href="Base_Contact_Page.html">Contact</a>
+            </p>
+        </div>
+    </footer>
+</body>
+
+</html>
+
+<!--this is a comment-->
+<!--- Media: Image above, button conversion of above + Parva -> PL/Parva --->

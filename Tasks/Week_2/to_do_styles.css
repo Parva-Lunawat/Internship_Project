@@ -1,0 +1,131 @@
+.card {
+    transform: translateY(-4px);
+    
+    padding: 10px 10px;
+}
+.card::before {
+    display: none;
+}
+
+/* To - Do List CSS */
+.todo {
+    padding: 32px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.todo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 200px;
+    flex-wrap: wrap;
+}
+
+.todo-maker-form {
+    display: grid;
+    grid-template-columns: 1fr 200px auto;
+    gap: 20px;
+    align-items: end;
+}
+
+.todo-form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.todo-form-col {
+    display: flex;
+    gap: 6px;
+}
+
+.todo-label {
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.todo-input,
+.todo-select {
+    padding: 12px 14px;
+    border-radius: var(--radius-pill);
+    border: 2px solid rgba(65, 11, 158, 0.25);
+    background: rgba(255, 255, 255, 0.55);
+    color: var(--text-color);
+}
+
+.todo-input:focus,
+.todo-select:focus {
+    border: 2px solid rgba(243, 243, 243, 0.25);
+}
+
+.todo-filter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.todo-filter-b {
+    padding: 10px 14px;
+    border-radius: var(--radius-pill);
+    border: 2px solid rgba(124, 58, 237, 0.25);
+    background: rgba(245, 240, 255, 0.75);
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.todo-filter-b:hover {
+    transform: translateY(-2px);
+    border-color: rgba(124, 58, 237, 0.55);
+}
+
+.todo-filter-b.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: rgba(124, 58, 237, 0.6);
+}
+.todo-list-cards {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 12px;
+    padding: 4px 0;
+}
+.todo-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(124, 58, 237, 0.22);
+    background-color: rgba(245, 240, 255, 0.75);
+    color: var(--hf-color);
+    position: relative;
+    margin: 5px;
+}
+.todo-card-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    justify-content: space-between;
+}
+.todo-card-header h3 {
+    font-weight: 800;
+}
+.circle {
+    height: 1.17em;
+    width: 1.17em;
+    border: 0.5px solid black;
+    background-color: currentColor;
+    border-radius: 50%;
+}
+
+.todo-card[data-priority="low"]    .circle{ color: #22c55e; }
+.todo-card[data-priority="medium"] .circle{ color: #f59e0b; }
+.todo-card[data-priority="high"]   .circle{ color: #ef4444; }

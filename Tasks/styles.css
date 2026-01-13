@@ -347,7 +347,7 @@ main {
     padding-bottom: 0;
 }
 
-.section-image-light{
+.section-image-light {
     width: 35%;
     flex: 0 0 35%;
     border-radius: 20px;
@@ -355,7 +355,7 @@ main {
     background-color: rgba(255, 255, 255, 0.25);
 }
 
-.section-image-dark{
+.section-image-dark {
     display: none;
     width: 35%;
     flex: 0 0 35%;
@@ -371,6 +371,7 @@ main {
     border-radius: var(--radius-pill);
     display: block;
 }
+
 .section-image-dark img {
     display: none;
     width: 100%;
@@ -405,6 +406,7 @@ main {
     margin: 5px;
     /* overflow: hidden; */
 }
+
 .singular-desc-card {
     /* width: 100%; */
     padding: 18px 40px;
@@ -418,15 +420,18 @@ main {
     text-align: justify;
     margin: 10px 0px;
 }
+
 .singular-desc-card svg {
     width: 36px;
     height: 36px;
     display: block;
 }
+
 .card-divider {
     display: flex;
     gap: 20px;
 }
+
 .card svg {
     width: 36px;
     height: 36px;
@@ -450,13 +455,14 @@ main {
     position: absolute;
     left: 20px;
     width: 3px;
-    top: 12px; bottom: 12px;
+    top: 12px;
+    bottom: 12px;
     border-radius: 999px;
     background: rgba(124, 58, 237, 0.9);
     opacity: 0.75;
 }
 
-.card-reveal{
+.card-reveal {
     position: absolute;
     width: 100%;
     left: 0px;
@@ -472,7 +478,7 @@ main {
     transition: transform ease 220ms, opacity 220ms ease;
 }
 
-.reveal-title{
+.reveal-title {
     font-weight: 800;
     font-size: 12px;
     letter-spacing: 0.06em;
@@ -488,9 +494,9 @@ main {
 }
 
 .card:hover .card-reveal,
-.card:focus-within .card-reveal{
-  transform: translateY(0);
-  opacity: 1;
+.card:focus-within .card-reveal {
+    transform: translateY(0);
+    opacity: 1;
 }
 
 .card h3 {
@@ -513,6 +519,7 @@ main {
     flex-wrap: wrap;
     gap: 10px;
 }
+
 .tag {
     display: inline-flex;
     border: 1px solid rgba(124, 58, 237, 0.55);
@@ -556,259 +563,4 @@ footer {
 
 .footer-link a {
     padding: 4px 10px;
-}
-
-/* ---------------- MOBILE ---------------- */
-@media screen and (max-width: 1000px) {
-    nav {
-        width: 92%;
-        padding: 0 16px;
-        height: 56px;
-        gap: 10px;
-    }
-
-    .nav-link {
-        display: none;
-    }
-
-    .nav-links {
-        display: none;
-    }
-
-    .nav-logo {
-        display: inline-block;
-        color: var(--hf-color);
-        font-weight: 800;
-        font-size: 24px;
-        padding: 6px 10px;
-        border-radius: var(--radius-pill);
-        background-color: rgba(245, 240, 255, 0.85);
-        border: 2px solid rgba(124, 58, 237, 0.35);
-        box-shadow: var(--shadow);
-    }
-
-    .nav-button {
-        display: grid;
-        place-items: center;
-        cursor: pointer;
-        width: 42px;
-        height: 42px;
-        color: var(--hf-color);
-        background: rgba(245, 240, 255, 0.85);
-        border-radius: var(--radius-pill);
-        border: 2px solid rgba(124, 58, 237, 0.35);
-        box-shadow: var(--shadow);
-    }
-
-    .nav-button svg {
-        width: 36px;
-        height: 36px;
-        display: block;
-    }
-
-    .introduction {
-        flex-direction: column-reverse;
-        height: auto;
-        min-height: 100vh;
-        justify-content: center;
-        gap: 18px;
-        padding: 24px 0;
-    }
-
-    .intro-text {
-        width: 100%;
-        max-width: 100%;
-        text-align: center;
-        margin-bottom: 0;
-    }
-
-    .outer-heading {
-        align-items: center;
-    }
-
-    .outer-heading h1 {
-        font-size: 30px;
-        line-height: 1.2;
-        text-align: center;
-    }
-
-    .inner-heading {
-        font-size: 30px;
-        height: var(--role-h-mobile);
-        line-height: var(--role-h-mobile);
-    }
-
-    @keyframes animation {
-
-        0%,
-        20% {
-            top: 0;
-        }
-
-        25%,
-        45% {
-            top: calc(-1 * var(--role-h-mobile));
-        }
-
-        50%,
-        70% {
-            top: calc(-2 * var(--role-h-mobile));
-        }
-
-        75%,
-        95% {
-            top: calc(-3 * var(--role-h-mobile));
-        }
-
-        100% {
-            top: 0;
-        }
-    }
-
-    .intro-image {
-        width: auto;
-        margin: 0;
-        margin-bottom: 30px;
-        display: flex;
-        justify-content: center;
-        background-color: rgba(255, 255, 255, 0.35);
-    }
-
-    .intro-image img {
-        width: min(360px, 92vw);
-        height: auto;
-    }
-
-    .button-area {
-        flex-direction: column;
-        justify-content: space-evenly;
-        align-items: center;
-    }
-
-    .site-section h1 {
-        font-size: 34px;
-        margin-bottom: 18px;
-    }
-
-    .site-section .introduction {
-        flex-direction: column;
-        gap: 18px;
-    }
-
-    .section-text {
-        width: 100%;
-    }
-
-    .section-image-light {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        margin-bottom: 12px;
-        background-color: rgba(255, 255, 255, 0.25);
-    }
-    .section-image-dark {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        margin-bottom: 12px;
-        background-color: rgba(255, 255, 255, 0.25);
-        
-    }
-
-    .section-image img {
-        width: m(320px, 80vw);
-    }
-
-    .cards {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
-    .footer-inner {
-        width: 92%;
-        padding: 0 10px;
-        gap: 10px;
-    }
-
-    .footer-link {
-        padding: 0 12px;
-        gap: 10px;
-    }
-}
-
-/* Default = LIGHT THEME*/
-
-/* switch is ON → DARK THEME */
-html:has(.switch input:checked) {
-    --primary-color: #a78bfa;
-    --primary-hover-color: #8b5cf6;
-    --primary-active-color: #7c3aed;
-
-    --text-color: #f5f3ff;
-    --hf-color: #f5f3ff;
-
-    --blue-100: rgba(30, 16, 56, 0.78);
-    --blue-200: rgba(30, 16, 56, 0.90);
-    --blue-500: #a78bfa;
-
-    --border: rgba(167, 139, 250, 0.25);
-    --shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-}
-html:has(.switch input:checked) body {
-    background:
-        radial-gradient(rgba(255,255,255,0.22) 5px, transparent 6px),
-        radial-gradient(rgba(255,255,255,0.14) 5px, transparent 6px),
-        linear-gradient(45deg,
-            transparent 70px,
-            transparent 70px,
-            rgba(255,255,255,0.28) 70px,
-            rgba(255,255,255,0.28) 72px,
-            transparent 72px,
-            transparent 100px),
-
-        linear-gradient(-45deg,
-            transparent 70px,
-            transparent 70px,
-            rgba(255,255,255,0.18) 70px,
-            rgba(255,255,255,0.18) 72px,
-            transparent 72px,
-            transparent 100px),
-        radial-gradient(circle at center, #1a0033, #070010 70%);
-
-    background-size:
-        100px 100px,
-        100px 100px,
-        100px 100px,
-        100px 100px,
-        100% 100%;
-
-    background-position:
-        50px 50px,
-        0px 0px,
-        0px 0px,
-        0px 0px,
-        0px 0px;
-}
-
-html:has(.switch input:checked) nav,
-html:has(.switch input:checked) .button,
-html:has(.switch input:checked) .footer-link {
-    background-color: rgba(30, 16, 56, 0.78);
-    border-color: rgba(167, 139, 250, 0.35);
-    color: var(--hf-color);
-}
-html:has(.switch input:checked) .section-image-light {
-    display: none;
-}
-html:has(.switch input:checked) .section-image-dark {
-    display: flex;
-}
-html:has(.switch input:checked) .singular-desc-card,
-html:has(.switch input:checked) .card {
-    background-color: rgba(30, 16, 56, 0.65);
-    border-color: rgba(167, 139, 250, 0.25);
-}
-html:has(.switch input:checked) .singular-desc-card::before,
-html:has(.switch input:checked) .card::before {
-    background: rgba(167, 139, 250, 0.95);
 }
