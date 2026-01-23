@@ -3,9 +3,13 @@ import Topbar from '../components/Topbar';
 import QuotesBar from '../components/QuotesBar';
 import NotesGrid from '../components/Notesgrid';
 import Modal from '../components/Open_Note_Modal';
-import { loadNotes, savedNotes } from '../utils/storage/localeStorage';
-import React from "react";
-import { useState, useMemo, useEffect, createContext } from "react";
+import ToolkitShortcuts from '../components/ToolkitShortcuts';
+import { useState, useMemo, useContext } from "react";
+import { useNotes } from "../hooks/useNotes";
+import { themeType } from '../context/themeContext';
+import { COLOR_MAP } from "../hooks/useNotes";
+import { useEscape, useNewNoteShortcut, useEnter, useChangeTheme } from '../hooks/allHooksMinor';
+import { KeyboardShortcutsContext } from '../context/keyBoardShortcutsContext';
 
 
 
@@ -13,12 +17,6 @@ import { useState, useMemo, useEffect, createContext } from "react";
 // This dict will be passed to Notesgrid where it would be mapped each note via NotesCard
 
 // Now addition of a method to call open_note_model to implement note addition function
-
-const COLORS = ["bg-pink-300", "bg-orange-300", "bg-green-300", "bg-violet-300", "bg-sky-300"];
-function uid() {
-    return Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
-// export const noteTitleContext = React.createContext(null);
 
 export default function NotesPage() {
     // const [notes, setNotes] = useState([
@@ -31,19 +29,23 @@ export default function NotesPage() {
     //         createdAt: new Date("2020-05-21"),
     //     },
     // ]);
-    const [notes, setNotes] = useState(() => {
-        const stored = loadNotes();
-        if (stored) return stored;
-        return [];
-    });
+
+    const { notes, createNote, updateNote, deletionNote, toggleStar, COLORS } = useNotes();
+
     const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [viewNoteId, setViewNoteId] = useState(null);
+    const [editingNoteId, setEditingNoteId] = useState(null);
+    const [isPanelOpen, setIsPanelOpen] = useState(false);
+
     const [title, setTitle] = useState("");
     const [body, setBody] = useState("");
     const [color, setColor] = useState(COLORS[0]);
     const [starred, setStarred] = useState(false);
-    const [viewNoteId, setViewNoteId] = useState(null);
-    const [editingNoteId, setEditingNoteId] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
+
+    const { listShortcuts } = useContext(KeyboardShortcutsContext);
+    const { theme } = useContext(themeType);
+    const isDark = theme === "dark";
 
     const viewedNote = notes.find(n => n.id === viewNoteId) || null;
     const viewModalTitle = (viewedNote !== null) ? viewedNote.title : "Note";
@@ -58,27 +60,14 @@ export default function NotesPage() {
         }).sort((a, b) => (Number(b.starred) - Number(a.starred)));
     }, [notes, searchQuery]);
 
-    useEffect(() => {
-        savedNotes(notes);
-    }, [notes]);
-
-    useEffect(() => {
-        if (!isCreateOpen && viewNoteId === null) return;
-        function handleEsc(event) {
-            if (event.key === "Escape") {
-                if (isCreateOpen) {
-                    closeCreate();
-                } else if (viewNoteId !== null) {
-                    closeView();
-                }
-            }
-        }
-
-        window.addEventListener("keydown", handleEsc);
-        return () => {
-            window.removeEventListener("keydown", handleEsc);
-        };
-    }, [isCreateOpen, viewNoteId]);
+    useEscape((isCreateOpen || viewNoteId !== null || isPanelOpen), () => {
+        if (isCreateOpen) closeCreate();
+        else if (isPanelOpen) closePanel();
+        else closeView();
+    })
+    useNewNoteShortcut((!isCreateOpen), () => { openCreate() });
+    useEnter(isCreateOpen, () => { saveNote() });
+    useChangeTheme(isCreateOpen && viewNoteId === null);
 
     function openCreate() {
         setTitle("");
@@ -86,6 +75,12 @@ export default function NotesPage() {
         setColor(COLORS[Math.floor(Math.random() * COLORS.length)]);
         setStarred(false);
         setIsCreateOpen(true);
+    }
+    function openPanel() {
+        setIsPanelOpen(true);
+    }
+    function closePanel() {
+        setIsPanelOpen(false);
     }
     function openEdit(note) {
         setEditingNoteId(note.id);
@@ -105,31 +100,20 @@ export default function NotesPage() {
         setEditingNoteId(null);
         setIsCreateOpen(false);
     }
+
     function saveNote() {
         const t = title.trim();
         if (!t) return;
         if (editingNoteId === null) {
-            const newNote = {
-                id: uid(),
-                title: t,
-                body: body,
-                color: color,
-                starred: starred,
-                createdAt: new Date(),
-            };
-            setNotes((prev) => [newNote, ...prev]);
+            createNote({ title: t, body, color, starred });
         } else {
-            setNotes(
-                prev => prev.map(
-                    note => note.id === editingNoteId ? { ...note, title: t, body, color, starred } : note
-                )
-            );
+            updateNote(editingNoteId, { title: t, body, color, starred });
         }
         setEditingNoteId(null);
         setIsCreateOpen(false);
     }
     function deleteNote() {
-        setNotes(prev => prev.filter(note => note.id !== editingNoteId));
+        deletionNote(editingNoteId);
         setIsCreateOpen(false);
         setEditingNoteId(null);
     }
@@ -137,32 +121,23 @@ export default function NotesPage() {
         closeView();
         openEdit(viewedNote);
     }
-    function toggleStar(id) {
-        setNotes(prev =>
-            prev.map(note => {
-                return note.id === id ? { ...note, starred: !note.starred } : note
-            })
-        );
-    }
-    // function toggleStar(id) {
-    //     setNotes(prev =>
-    //         prev.map(note =>
-    //             note.id === id? { ...note, starred: !note.starred } : note
-    //         )
-    //     );
-    // }
 
     return (
-        <div className="min-h-lvh max-h-max bg-zinc-100">
+        <div className={`
+            min-h-lvh max-h-max
+            ${isDark
+                ? "bg-zinc-900/90 text-zinc-100"
+                : "bg-zinc-100 text-zinc-900"}
+        `}>
             <div className="flex">
-                <Sidebar onCreate={openCreate} />
+                <Sidebar onCreate={openCreate} onTools={openPanel} />
                 <main className="flex-1">
                     <div className="ml-16 px-10 pt-8">
                         <Topbar value={searchQuery} onChange={setSearchQuery} />
-                        <h1 className="mt-6 text-6xl font-extrabold tracking-tight text-zinc-900">
+                        <h1 className="my-6 text-6xl font-extrabold tracking-tight">
                             Notes
                         </h1>
-                        <div className="py-10 mb-50">
+                        <div className="py-10 mb-5 max-h-[75vh] overflow-auto">
                             <NotesGrid notes={filteredNotes} onEdit={openEdit} onStar={toggleStar} onView={openView} />
                         </div>
                     </div>
@@ -171,7 +146,6 @@ export default function NotesPage() {
                     </div>
                 </main>
             </div>
-            {/* <noteTitleContext.Provider value={title}> */}
             <Modal open={isCreateOpen} title={createEditModalTitle} onClose={closeCreate}>
                 <div className="space-y-4">
                     <div className="flex justify-left gap-10 items-center py-2">
@@ -188,20 +162,24 @@ export default function NotesPage() {
                     </div>
                     <div className="flex items-center justify-between gap-4 flex-wrap">
                         <div className="flex items-center gap-3">
-                            <span className="text-sm font-medium text-zinc-700">COLORS: </span>
+                            <span className="text-sm font-medium">COLORS: </span>
                             <div className="flex items-center gap-2">
-                                {COLORS.map((c) => (
-                                    <input
-                                        key={c}
-                                        type="button"
-                                        onClick={() => setColor(c)}
-                                        title={c}
-                                        className={`h-7 w-7 rounded-full ${c} border ${color === c ? "border-zinc-900" : "border-white/50"}`}
-                                    />
-                                ))}
+                                {COLORS.map((c) => {
+                                    const bgClass = COLOR_MAP[theme][c];
+                                    return (
+                                        <input
+                                            key={c}
+                                            type="button"
+                                            onClick={() => setColor(c)}
+                                            title={c}
+                                            className={`h-7 w-7 rounded-full ${bgClass} border-2 
+                                            ${color === c ? (isDark ? "border-white/50" : "border-zinc-900") : (isDark ? "border-zinc-900" : "border-white/50")}`}
+                                        />
+                                    );
+                                })}
                             </div>
                         </div>
-                        <label className="flex items-center gap-2 text-sm text-zinc-700 select-none">
+                        <label className="flex items-center gap-2 text-sm select-none">
                             <input type='checkbox' checked={starred} onChange={(e) => setStarred(e.target.checked)}
                                 className="h-4 w-4 rounded border-zinc-300" /> Starred
                         </label>
@@ -210,21 +188,29 @@ export default function NotesPage() {
                         {editingNoteId !== null ? (<button
                             type="button"
                             onClick={deleteNote}
-                            className="rounded-xl px-4 py-2.5 border border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+                            className={`px-4 py-2.5 rounded-xl border text-red-400`}
                         >
                             Delete
                         </button>) : null}
                         <button
                             type="button"
                             onClick={closeCreate}
-                            className="rounded-xl px-4 py-2.5 border border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+                            className={`px-4 py-2.5 rounded-xl border text-zinc-900
+                                ${isDark
+                                    ? "bg-zinc-100 hover:bg-zinc-200"
+                                    : "bg-zinc-900 hover:bg-zinc-800"}
+                            `}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             onClick={saveNote}
-                            className="rounded-xl px-4 py-2.5 border border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+                            className={`px-4 py-2.5 rounded-xl font-medium border text-zinc-900
+                                ${isDark
+                                    ? "bg-zinc-100 hover:bg-zinc-200"
+                                    : "bg-zinc-900 hover:bg-zinc-800"}
+                            `}
                             disabled={false}
                         >
                             {editingNoteId !== null ? "Save" : "Create"}
@@ -234,27 +220,34 @@ export default function NotesPage() {
             </Modal>
             <Modal open={!!viewNoteId} title={viewModalTitle} onClose={closeView}>
                 {viewedNote && (
-                    <div className="space-y-3">
-
-                        <div className="text-sm text-zinc-500">
-                            {new Date(viewedNote.createdAt).toLocaleDateString("en-us", { year: "numeric", month: "short", day: "numeric" })}
-                        </div>
-                        <div className="mt-auto pt-6 flex items-center justify-between gap-3">
-                            <div className="whitespace-pre-wrap break-words text-zinc-800 leading-relaxed max-h-[60vh] overflow-auto pr-1">
-                                {viewedNote.body}
+                    <div className="space-y-3 -mx-1">
+                        <div className="pt-3 flex items-center justify-between gap-3">
+                            <div className="text-sm">
+                                {new Date(viewedNote.createdAt).toLocaleDateString("en-us", { year: "numeric", month: "short", day: "numeric" })}
                             </div>
                             <button
                                 onClick={() => viewToEdit(viewedNote)}
                                 type="button"
-                                className="h-10 px-4 rounded-full bg-white/30 text-zinc-900 flex items-center justify-center hover:bg-white/50"
+                                // className="h-10 px-4 rounded-full flex items-center justify-center hover:bg-white/50"
+                                className={`rounded-lg px-4 py-1.5 text-sm text-zinc-900
+                                    ${isDark
+                                        ? "hover:bg-zinc-700"
+                                        : "hover:bg-zinc-100"}
+                                    `}
                             >
                                 Edit
                             </button>
                         </div>
+                        <div className="whitespace-pre-wrap break-words leading-relaxed max-h-[40vh] overflow-auto pr-1">
+                            {viewedNote.body}
+                        </div>
                     </div>
                 )}
             </Modal>
-            {/* </noteTitleContext.Provider> */}
+            <Modal open={isPanelOpen} title="TOOLKIT" onClose={closePanel}>
+                <ToolkitShortcuts />
+            </Modal>
+
         </div>
     );
 }

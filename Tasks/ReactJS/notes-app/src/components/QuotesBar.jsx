@@ -72,7 +72,7 @@ export default function QuotesBar() {
 
     return (<div className="fixed ml-20 flex justify-center item-center bottom-0 right-0 left-0 bg-zinc-900 text-zinc-100 px-20 py-5">
         {quote.text ? (
-            <p className="text-m italic">
+            <p className="text-m italic text-center">
                 “{quote.text}”
                 <span className="not-italic font-medium ml-2"> — {quote.author}</span>
             </p>

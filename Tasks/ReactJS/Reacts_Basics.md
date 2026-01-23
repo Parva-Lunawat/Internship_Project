@@ -10,6 +10,9 @@
 ### ReactJS => frontend JS Library
 Instead of manipulating the browser's DOM directly, React creates a **virtual DOM** in memory, where it does all the necessary manipulating, before making the changes in the browser DOM.
 
+#### React Specials
+*   `<StrictMode>` runs everything twice in dev
+
 ### Destructuring
 Use `props` keyword then can call using `props.name` etc. or use direct destructure.
 
@@ -54,4 +57,8 @@ import { userNameContext } from '../../../App'
 const user = useContext(userNameContext);
 ```
 
+#### `useCallback` Hook:
+Same as useMemo just memoizes the function instead of value
 
+#### `useMemo` Hook:
+Same as useCallback just memoizes the value instead of function
