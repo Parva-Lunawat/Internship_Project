@@ -5,13 +5,14 @@ import NotesGrid from '../components/Notesgrid';
 import Modal from '../components/Open_Note_Modal';
 import ToolkitShortcuts from '../components/ToolkitShortcuts';
 import { useState, useMemo, useContext } from "react";
+
 import { useNotes } from "../hooks/useNotes";
-import { themeType } from '../context/themeContext';
 import { COLOR_MAP } from "../hooks/useNotes";
 import { useEscape, useNewNoteShortcut, useEnter, useChangeTheme } from '../hooks/allHooksMinor';
-import { KeyboardShortcutsContext } from '../context/keyBoardShortcutsContext';
 
+import { themeType } from '../context/themeContext';
 
+import { ToastContainer, toast } from 'react-toastify';
 
 // NotesPage will hold the addition deletion and all functionality + hold a dict for each added notes
 // This dict will be passed to Notesgrid where it would be mapped each note via NotesCard
@@ -43,7 +44,6 @@ export default function NotesPage() {
     const [starred, setStarred] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
 
-    const { listShortcuts } = useContext(KeyboardShortcutsContext);
     const { theme } = useContext(themeType);
     const isDark = theme === "dark";
 
@@ -102,6 +102,7 @@ export default function NotesPage() {
     }
 
     function saveNote() {
+        const notify = () => toast(`Note Succesfully ${editingNoteId !== null? "Edited": "Created"}`);
         const t = title.trim();
         if (!t) return;
         if (editingNoteId === null) {
@@ -111,6 +112,7 @@ export default function NotesPage() {
         }
         setEditingNoteId(null);
         setIsCreateOpen(false);
+        notify();
     }
     function deleteNote() {
         deletionNote(editingNoteId);
@@ -247,7 +249,7 @@ export default function NotesPage() {
             <Modal open={isPanelOpen} title="TOOLKIT" onClose={closePanel}>
                 <ToolkitShortcuts />
             </Modal>
-
+            <ToastContainer />
         </div>
     );
 }
