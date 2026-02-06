@@ -1,0 +1,1 @@
+export const selectNotesItems = (state) => state.notes.items;
