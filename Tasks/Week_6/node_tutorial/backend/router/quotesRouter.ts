@@ -1,5 +1,4 @@
 import express from "express";
-import { styleText } from "node:util";
 // export default function getQuotesRoute(quotesController) {
 //     const router = express.Router();
 //     router.get("/quotes", quotesController.getLatest);
@@ -27,7 +26,7 @@ export default function getQuotesRoute(quotesController, quoteService) {
         };
 
         send();
-        const id = setInterval(send, 2000);
+        const id = setInterval(send, 20000);
         
         req.on("close", () => {
             clearInterval(id);
