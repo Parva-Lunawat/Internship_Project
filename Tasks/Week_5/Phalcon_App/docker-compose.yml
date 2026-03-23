@@ -1,0 +1,15 @@
+services:
+  phalcon_app:
+    # image: phalconphp/cphalcon:v5.9.2-php8.4   # Use official Phalcon image (no build needed)
+    build: .
+    container_name: phalcon_app
+    working_dir: /var/www/html                # Set working directory inside container
+    volumes:
+      - ./src:/var/www/html                   # Mount project source code
+    ports:
+      - "8080:8000"                           # Map localhost:8080 → container port 8000
+    command: >
+      sh -c "composer install --no-interaction && 
+             echo 'App starting at http://localhost:8080/question' && 
+             echo 'Docs starting at http://localhost:8080/docs' &&
+             php -S 0.0.0.0:8000 -t public"

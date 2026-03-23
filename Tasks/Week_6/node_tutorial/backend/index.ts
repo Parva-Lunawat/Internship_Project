@@ -35,7 +35,7 @@ const port = process.env.PORT || 5000;
 //quotes area
 const quotesService = getQuotesService({
     url: "https://thequoteshub.com/api/random-quote?format=json",
-    timer: 200000,
+    timer: 20000,
 });
 const quotesController = getQuotesController(quotesService);
 const quotesRouter = getQuotesRoute(quotesController, quotesService);

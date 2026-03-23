@@ -1,0 +1,68 @@
+[
+    {
+        "id": 1,
+        "title": "best beverage",
+        "options": [
+            {
+                "id": 1,
+                "text": "tea",
+                "votes": 6
+            },
+            {
+                "id": 2,
+                "text": "coffee",
+                "votes": 1
+            },
+            {
+                "id": 3,
+                "text": "milk",
+                "votes": 1
+            }
+        ],
+        "totalVotes": 8
+    },
+    {
+        "id": 2,
+        "title": "Best actor",
+        "options": [
+            {
+                "id": 1,
+                "text": "Brad pitt",
+                "votes": 9
+            },
+            {
+                "id": 2,
+                "text": "Tom Cruise",
+                "votes": 4
+            },
+            {
+                "id": 3,
+                "text": "Arnold Schwaznegger",
+                "votes": 2
+            }
+        ],
+        "totalVotes": 15
+    },
+    {
+        "id": 3,
+        "title": "Best Journal?",
+        "options": [
+            {
+                "id": 1,
+                "text": "Nature",
+                "votes": 1
+            },
+            {
+                "id": 2,
+                "text": "Science",
+                "votes": 0
+            },
+            {
+                "id": 3,
+                "text": "Mathematica",
+                "votes": 1
+            }
+        ],
+        "totalVotes": 2
+    }
+]

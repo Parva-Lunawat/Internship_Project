@@ -1,0 +1,35 @@
+<div>
+    <h1>All Polls</h1>
+
+    <table border="2" cellpadding="10" cellspacing="2">
+        <thead>
+            <th>ID</th>
+            <th>Poll</th>
+            <th>Total Votes</th>
+            <th>Open</th>
+            <th>Delete</th>
+        </thead>
+        <tbody>
+            <?php foreach ($polls as $poll): ?>
+                <tr>
+                    <td><?= $poll['id'] ?></td>
+                    <td><?= htmlspecialchars($poll['title']) ?></td>
+                    <td><?= $poll['totalVotes'] ?></td>
+                    <td>
+                        <a href="<?= $this->url->get("question/view/{$poll['id']}") ?>">
+                            View
+                        </a>
+                    </td>
+                    <td>
+                        <a href="<?= $this->url->get("question/delete/{$poll['id']}") ?>">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+
+    <br>
+    <a href="/question/create">Create New Poll</a>
+</div>

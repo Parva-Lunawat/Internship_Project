@@ -1,0 +1,30 @@
+<h1><?= $poll['title'] ?></h1>
+
+<?php
+usort($poll['options'], function ($a, $b) {
+    return $b['votes'] <=> $a['votes'];
+});
+?>
+<table border="2" cellpadding="10">
+    <thead>
+        <th>Option</th>
+        <th>Current Votes</th>
+        <th>Vote</th>
+    </thead>
+    <tbody>
+        <?php foreach ($poll['options'] as $option): ?>
+        <tr>
+            <td><?= $option['text'] ?></td>
+            <td>Votes: <?= $option['votes'] ?></td>
+            <td>
+                <form action="<?= $this->url->get("question/vote/{$poll['id']}/{$option['id']}") ?>"
+                    method="post" style="display:inline">
+                    <button type="submit"> Vote </button>
+                </form>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+<br>
+<a href="<?= $this->url->get('/question') ?>">Back</a>

@@ -1,0 +1,13 @@
+{
+  "require-dev": {
+    "phalcon/ide-stubs": "^5.9"
+  },
+  "require": {
+    "zircote/swagger-php": "^6.0"
+  },
+  "autoload": {
+    "classmap": [
+      "app/controllers"
+    ]
+  }
+}

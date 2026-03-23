@@ -21,22 +21,42 @@ export default function getQuotesService({
 } = {}) {
     let latestQuote = "Loading quotes...";
     let author = "Awaiting...";
+    let intervalId: NodeJS.Timeout | null = null;
+    let paused = false;
     async function refresh() {
         try {
             const response = await fetch(url);
-            const data = await response?.json();
+            const data = await response.json();
             latestQuote = data?.text ?? latestQuote;
-            author = data?.author ?? author;
+            author = data.author ?? author;
         } catch (error) {
             console.error("Unable to fetch quote:", error);
         }
     }
-    setInterval(refresh, timer);
+    function startAutoFetch() {
+        if (intervalId) return;
+        paused = false;
+        intervalId = setInterval(refresh, timer);
+    }
+    function stopAutoFetch() {
+        paused = true;
+        if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+        }
+    }
+
+    startAutoFetch();
     refresh();
     return {
-        getLatestQuote() {
+        getLatestQuote: () => ({latestQuote, author}),
             // js closures so as to not pass stale value rather pass live state
+        forceRefresh: async () => {
+            await refresh();
             return {latestQuote, author};
         },
+        pause: () => stopAutoFetch(),
+        resume: () => startAutoFetch(),
+        isPaused: () => paused,
     };
 }

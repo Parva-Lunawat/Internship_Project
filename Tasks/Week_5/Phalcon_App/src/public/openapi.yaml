@@ -1,0 +1,124 @@
+openapi: 3.0.3
+
+info:
+  title: Polls API
+  description: API for managing polls and voting
+  version: "1.0.0"
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+
+  /api/question:
+    get:
+      summary: List all polls
+      operationId: listPolls
+      responses:
+        "200":
+          description: List of polls
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /api/question/view/{pollId}:
+    get:
+      summary: View poll by ID
+      operationId: viewPoll
+      parameters:
+        - name: pollId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Poll details
+          content:
+            application/json:
+              schema:
+                type: object
+        "404":
+          description: Poll not found
+
+  /api/question/create:
+    post:
+      summary: Create a poll
+      operationId: createPoll
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - options
+              properties:
+                title:
+                  type: string
+                  example: Best backend framework?
+                options:
+                  type: array
+                  items:
+                    type: string
+                  example:
+                    - NestJS
+                    - Phalcon
+                    - Django
+      responses:
+        "200":
+          description: Poll created
+          content:
+            application/json:
+              schema:
+                type: object
+        "422":
+          description: Validation error
+
+  /api/question/view/{pollId}/vote:
+    post:
+      summary: Vote for an option
+      operationId: votePoll
+      parameters:
+        - name: pollId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - optionId
+              properties:
+                optionId:
+                  type: integer
+                  example: 2
+      responses:
+        "200":
+          description: Vote successful
+        "422":
+          description: Validation error
+
+  /api/question/{pollId}:
+    delete:
+      summary: Delete a poll
+      operationId: deletePoll
+      parameters:
+        - name: pollId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Poll deleted
+        "404":
+          description: Poll not found
