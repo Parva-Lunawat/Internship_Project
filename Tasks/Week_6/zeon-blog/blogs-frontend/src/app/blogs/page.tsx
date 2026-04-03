@@ -1,8 +1,7 @@
 import BlogCard from "../components/blogs/BlogCard";
-import { filteredPaginatedPosts } from "@/src/lib/postsZeon";
-import { posts } from "@/src/lib/postsZeon";
 import Pagination from "./Pagination";
 import SearchBar from "./searchBar";
+import { getPublishedBlogs, BlogPost } from "@/src/lib/api/blogsApi";
 
 
 type pageProp = {
@@ -19,7 +18,7 @@ export default async function PaginatedBlogsPage({ searchParams }: pageProp) {
   const currentPage = Number(params?.page ?? "1") || 1;
   const query = params?.query?.trim();
   const tag = params?.tag?.trim();
-  const { posts, totalPages } = filteredPaginatedPosts({ page: currentPage, pageSize: PAGE_SIZE, query, tag });
+  const { blogs, meta } = await getPublishedBlogs({ page: currentPage, pageSize: PAGE_SIZE, query, tag });
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6">
       <header className="space-y-2">
@@ -34,8 +33,8 @@ export default async function PaginatedBlogsPage({ searchParams }: pageProp) {
 
       <div key={`${query}-${tag}-${currentPage}`}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 gap-4">
-        {posts.length > 0 ? (
-          posts.map((post: posts) => (
+        {blogs.length > 0 ? (
+          blogs.map((post: BlogPost) => (
             <BlogCard key={post.pageTitle} post={post} />
           ))) : (
           <p className="col-span-full py-10 text-center text-gray-500">
@@ -45,7 +44,7 @@ export default async function PaginatedBlogsPage({ searchParams }: pageProp) {
       </div>
       <Pagination
         currentPage={currentPage}
-        totalPages={totalPages}
+        totalPages={meta.totalPages}
         basePath="/blogs"
         extraParams={{ query, tag }}
       />

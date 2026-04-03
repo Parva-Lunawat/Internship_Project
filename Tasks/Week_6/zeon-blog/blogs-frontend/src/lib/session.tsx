@@ -1,6 +1,11 @@
 export type sessionUser = {
     name: string;
     email: string;
+    avatar: string | null;
+    role: "admin" | "writer" | "reader";
+    isProfileComplete: boolean;
+    createdAt?: string;
+    loginTimestamp?: number;
 }
 const key = "ZEON_USER";
 export function setSession(user: sessionUser) {

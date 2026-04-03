@@ -1,4 +1,4 @@
-import { getAllPublishedPosts } from "@/src/lib/postsZeon";
+import { getPublishedBlogs } from "@/src/lib/api/blogsApi";
 import CompactCard from "../blogs/SmallBlogCards";
 import BigFeaturedCard from "../blogs/BigBlogCards";
 
@@ -91,9 +91,9 @@ import BigFeaturedCard from "../blogs/BigBlogCards";
 // }
 
 
-export default function FeaturedPost() {
-  const posts = getAllPublishedPosts();
-  const [featured, ...rest] = posts;
+export default async function FeaturedPost() {
+  const posts = await getPublishedBlogs({page: 1, pageSize: 4});
+  const [featured, ...rest] = posts.blogs;
   if (!featured) return null;
 
   return (

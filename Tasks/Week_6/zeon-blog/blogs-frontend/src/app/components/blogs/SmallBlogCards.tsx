@@ -1,22 +1,8 @@
-import { posts } from "@/src/lib/postsZeon"
+import { BlogPost } from "@/src/lib/api/blogsApi";
 import Link from "next/link";
+import { TagPills } from "./BlogCard";
 
-function TagPills({ tags }: { tags: string[] }) {
-  return (
-    <div className="mt-3 flex flex-wrap gap-2">
-      {tags.map((tag) => (
-        <span
-          key={tag}
-          className="rounded-full border bg-white px-3 py-1 text-xs text-gray-700"
-        >
-          #{tag}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-export default function CompactCard({ post }: { post: posts }) {
+export default function CompactCard({ post }: { post: BlogPost }) {
   const img = post.coverImage ??
     "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop&q=60";
   const author = post.author.name ?? "Zeon Team";

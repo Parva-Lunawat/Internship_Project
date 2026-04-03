@@ -1,8 +1,9 @@
-import { getAllPublishedPosts } from "@/src/lib/postsZeon";
+import { getPublishedBlogs } from "@/src/lib/api/blogsApi";
 import BlogCard from "../blogs/BlogCard";
 
-export default function BlogGrid() {
-    const posts = getAllPublishedPosts().slice(0, 6);
+export default async function BlogGrid() {
+    const data = await getPublishedBlogs({ page: 1, pageSize: 6 });
+    const posts = data.blogs;
 
     return (
         <section>

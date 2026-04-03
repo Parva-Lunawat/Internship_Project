@@ -1,22 +1,8 @@
-import { posts } from "@/src/lib/postsZeon";
 import Link from "next/link";
+import type { BlogPost } from "@/src/lib/api/blogsApi";
+import { TagPills } from "./BlogCard";
 
-function TagPills({ tags }: { tags: string[] }) {
-  return (
-    <div className="mt-3 flex flex-wrap gap-2">
-      {tags.map((tag) => (
-        <span
-          key={tag}
-          className="rounded-full border bg-white px-3 py-1 text-xs text-gray-700"
-        >
-          #{tag}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-export default function BigFeaturedCard({ post }: { post: posts }) {
+export default function BigFeaturedCard({ post }: { post: BlogPost }) {
   // Optional: if you later add post.coverImage
   const img = post.coverImage ??
     "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1200&auto=format&fit=crop&q=60";

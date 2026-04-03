@@ -1,5 +1,6 @@
-import { getPostsBypageTitle } from "@/src/lib/postsZeon";
 import { notFound } from "next/navigation";
+import { getPublishedPostByPageTitle } from "@/src/lib/api/blogsApi";
+import ReactMarkdown from "react-markdown";
 
 type pageParams = {
     params: Promise<{ pageTitle: string }>;
@@ -7,14 +8,14 @@ type pageParams = {
 
 export default async function Page({ params }: pageParams) {
     const { pageTitle } = await params;
-    const post = getPostsBypageTitle(pageTitle);
+    const post = await getPublishedPostByPageTitle(pageTitle);
     if (!post) notFound();
 
     return (
         <article className="flex flex-col gap-6 prose max-w-none m-10" >
             <div className="flex flex-col gap-4 pb-4">
                 <h1 className="text-4xl font-bold">{post.title}</h1>
-                <p className="text-lg italic">{post.excerpt}</p>
+                <p className="text-lg italic break-words">{post.excerpt}</p>
             </div>
             <div className="relative overflow-hidden border">
                 <div className="aspect-[16/9] w-full overflow-hidden bg-gray-100">
@@ -37,14 +38,26 @@ export default async function Page({ params }: pageParams) {
                             </div>
                         </div>
                         <div>
-                            <img src={post.author.avatar}
+                            <img src={post.author.avatar || "/default-avatar.png"}
                             className="h-22 w-22 rounded-full border-2 border-white"></img>
                         </div>
                     </div>
                 </div>
             </div>
-            <div className="text-base leading-loose text-justify">
-                <p> {post.content} </p>
+            <div className="prose prose-stone max-w-none prose-headings:font-bold prose-a:text-black prose-img:rounded-3xl prose-pre:bg-gray-900 prose-pre:rounded-2xl leading-relaxed text-justify">
+                <ReactMarkdown
+                    components={{
+                        img: ({ node, ...props }) => (
+                            <img 
+                                {...props} 
+                                className="mx-auto block rounded-3xl border border-gray-100 shadow-xl w-full max-w-[800px] object-cover my-12" 
+                                alt={props.alt || "Blog image"}
+                            />
+                        )
+                    }}
+                >
+                    {post.content}
+                </ReactMarkdown>
             </div>
         </article>
     );

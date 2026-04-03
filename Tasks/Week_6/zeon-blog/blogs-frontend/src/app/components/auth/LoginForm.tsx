@@ -6,6 +6,7 @@ import { login, LoginInput } from "@/src/lib/authClient";
 import { setSession } from "@/src/lib/session";
 import { useDispatch } from "react-redux";
 import { authLoginSuccess } from "../../Redux/actions/authActions";
+import { toast } from "react-toastify";
 
 export default function LoginForm() {
     const dispatch = useDispatch();
@@ -15,17 +16,15 @@ export default function LoginForm() {
         email: "",
         password: "",
     });
-    const [error, setError] = useState<string>("");
     const canSubmit = useMemo(() => {
-        return input.email.trim().length > 0 && input.password.length >= 3;
+        return input.email.trim().length > 0 && input.password.length > 8;
     }, [input.email, input.password]);
 
     async function onSubmit(e: React.FormEvent) { 
         e.preventDefault();
-        setError("");
         const result = await login(input);
         if (result.type === "unauthenticated") {
-            setError(result.error); return;
+            toast.error(result.error); return;
         }
         setSession(result.user);
         dispatch(authLoginSuccess(result.user));
@@ -43,6 +42,7 @@ export default function LoginForm() {
                     type="email"
                     placeholder="you@example.com"
                     className="h-11 w-full rounded-lg border px-3 text-sm outline-none focus:border-gray-400"
+                    required
                 />
             </div>
 
@@ -54,14 +54,9 @@ export default function LoginForm() {
                     type="password"
                     placeholder="••••••••"
                     className="h-11 w-full rounded-lg border px-3 text-sm outline-none focus:border-gray-400"
+                    required
                 />
             </div>
-
-            {error ? (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                    {error}
-                </div>
-            ) : null}
 
             <button
                 type="submit"

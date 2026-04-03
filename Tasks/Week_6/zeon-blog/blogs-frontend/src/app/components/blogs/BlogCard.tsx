@@ -1,34 +1,36 @@
+"use client";
+
 import Link from "next/link";
-import type { posts } from "@/src/lib/postsZeon";
+import { useRouter } from "next/navigation";
+import type { BlogPost } from "@/src/lib/api/blogsApi";
 
-type Props = {
-    post: posts;
-};
-
-function TagPills({ tags }: { tags: string[] }) {
+export function TagPills({ tags }: { tags: { id: string; name: string }[] }) {
   return (
     <div className="mt-3 flex flex-wrap gap-2">
-      {tags.map((tag) => (
-        <span
-          key={tag}
+      {tags.map((tag) => {
+        const tagId = tag.id;
+        const tagName = tag.name;
+        return (<span
+          key={tagId}
           className="rounded-full border bg-white px-3 py-1 text-xs text-gray-700"
         >
-          #{tag}
-        </span>
-      ))}
+          #{tagName}
+        </span>);
+      })}
     </div>
   );
 }
 
-export default function BlogCard({ post }: { post: posts }) {
+export default function BlogCard({ post }: { post: BlogPost }) {
+  const router = useRouter();
   const img = post.coverImage ??
     "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop&q=60";
   const author = post.author.name ?? "Zeon Team";
 
   return (
-    <Link
-      href={`/blogs/${post.pageTitle}`}
-      className="group block h-full overflow-hidden rounded-2xl border transition hover:bg-gray-50"
+    <div
+      onClick={() => router.push(`/blogs/${post.pageTitle}`)}
+      className="group block h-full overflow-hidden rounded-2xl border transition hover:bg-gray-50 cursor-pointer"
     >
       {/* Image Container - Now on top */}
       <div className="aspect-[16/9] w-full overflow-hidden bg-gray-100">
@@ -41,20 +43,25 @@ export default function BlogCard({ post }: { post: posts }) {
 
       {/* Content Container */}
       <div className="p-4">
-        <p className="text-xs text-gray-500">
-          {author} • {post.publishedAt}
-        </p>
-        
+        <div className="flex items-center text-xs text-gray-500 mb-2">
+          <Link 
+            href={`/profile/${post.author.id}`}
+            className="hover:text-black hover:underline font-medium relative z-10"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {author}
+          </Link>
+          <span className="mx-1">•</span>
+          <span>{post.publishedAt}</span>
+        </div>
         <h4 className="mt-2 line-clamp-2 text-base font-semibold leading-snug">
           {post.title}
         </h4>
-        
         <p className="mt-2 line-clamp-2 text-xs text-gray-600">
           {post.excerpt}
         </p>
-        
         <TagPills tags={post.tags.slice(0, 2)} />
       </div>
-    </Link>
+    </div>
   );
-}
+}
