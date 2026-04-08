@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getPublishedPostByPageTitle } from "@/src/lib/api/blogsApi";
 import ReactMarkdown from "react-markdown";
+import type { ComponentPropsWithoutRef } from "react";
 import { resolveImageUrl } from "@/src/lib/utils/urlUtils";
 
 type pageParams = {
@@ -48,11 +49,12 @@ export default async function Page({ params }: pageParams) {
             <div className="prose prose-stone max-w-none text-justify leading-relaxed prose-headings:font-bold prose-a:text-black prose-img:rounded-3xl prose-pre:rounded-2xl prose-pre:bg-gray-900 dark:prose-invert dark:prose-a:text-sky-300">
                 <ReactMarkdown
                     components={{
-                        img: ({ ...props }) => (
+                        img: ({ src, alt, title }: ComponentPropsWithoutRef<"img">) => (
                             <img 
-                                {...props} 
+                                src={src}
+                                title={title}
                                 className="mx-auto my-12 block w-full max-w-[800px] rounded-3xl border border-gray-100 object-cover shadow-xl dark:border-gray-700" 
-                                alt={props.alt || "Blog image"}
+                                alt={alt || "Blog image"}
                             />
                         )
                     }}

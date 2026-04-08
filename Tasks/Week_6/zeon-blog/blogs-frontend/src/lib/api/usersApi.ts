@@ -51,7 +51,7 @@ export async function getCurrentUser(): Promise<User> {
     return res.data;
 }
 
-export async function updateCurrentUser(data: { name?: string; email?: string; avatar?: string; role?: UserRole; }): Promise<User> {
+export async function updateCurrentUser(data: { name?: string; email?: string; avatar?: string | null; role?: UserRole; }): Promise<User> {
     const res = await apiFetch<{ data: User }>(`${API_BASE_URL}/users/me`,{ method: 'PATCH', body: JSON.stringify(data) });
     return res.data;
 }

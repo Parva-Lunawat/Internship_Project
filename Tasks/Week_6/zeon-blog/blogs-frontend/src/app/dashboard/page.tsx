@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAppSelector } from "../Redux/customStoreWrapper";
 import { selectAuthUser } from "../Redux/selector-functions/authSelector";
-import { ApiRequestError, getMyBlogs } from "@/src/lib/api/blogsApi";
+import { getMyBlogs } from "@/src/lib/api/blogsApi";
 import { FileText, User as UserIcon, LayoutDashboard, Clock, Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -38,9 +38,7 @@ export default function DashboardPage() {
         const data = await getMyBlogs({ page: 1, pageSize: 1 });
         setBlogCount(data.meta.totalBlogs);
       } catch (err: unknown) {
-        if (!(err instanceof ApiRequestError && err.status === 401)) {
-          console.error("Failed to fetch blog stats:", err);
-        }
+        console.error("Failed to fetch blog stats:", err);
         setBlogCount(0);
       } finally {
         setLoadingStats(false);

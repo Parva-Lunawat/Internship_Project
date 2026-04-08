@@ -12,9 +12,18 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = Number(process.env.PORT) || 3000;
   const corsOrigin = process.env.CORS_ORIGIN;
+  const isProduction = process.env.NODE_ENV === 'production';
   const allowedOrigins = corsOrigin
-    ? corsOrigin.split(',').map((origin) => origin.trim()).filter(Boolean)
-    : ['http://localhost:5173', 'http://localhost:3000'];
+    ? corsOrigin
+        .split(',')
+        .map((origin) => origin.trim().replace(/\/$/, ''))
+        .filter(Boolean)
+    : [];
+  if (isProduction && allowedOrigins.length === 0) {
+    throw new Error(
+      'CORS_ORIGIN must be set in production (comma-separated origins).',
+    );
+  }
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({
@@ -26,18 +35,38 @@ async function bootstrap() {
   app.use(cookieParser());
   app.use(requestIdMiddleware);
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalInterceptors(new RequestTimingInterceptor(app.get(MetricsService)));
+  app.useGlobalInterceptors(
+    new RequestTimingInterceptor(app.get(MetricsService)),
+  );
   app.enableCors({
     origin: (origin, callback) => {
-      // Allow non-browser requests (no Origin header), and browser requests from allowlist.
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow non-browser requests (no Origin header).
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      // In non-production, allow all browser origins when CORS_ORIGIN is not configured.
+      if (!isProduction && allowedOrigins.length === 0) {
+        callback(null, true);
+        return;
+      }
+
+      const normalizedOrigin = origin.replace(/\/$/, '');
+      if (allowedOrigins.includes(normalizedOrigin)) {
         callback(null, true);
         return;
       }
       callback(new Error(`CORS origin blocked: ${origin}`));
     },
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-client-id', 'x-request-source', 'x-request-id'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'x-client-id',
+      'x-request-source',
+      'x-request-id',
+    ],
     exposedHeaders: ['x-request-id'],
     credentials: true,
   });
@@ -66,12 +95,13 @@ async function bootstrap() {
     },
   });
 
-  const samplerIntervalMs = Number(process.env.BENCHMARK_SAMPLER_INTERVAL_MS) || 0;
+  const samplerIntervalMs =
+    Number(process.env.BENCHMARK_SAMPLER_INTERVAL_MS) || 0;
   if (samplerIntervalMs > 0) {
     setInterval(() => {
       const mem = process.memoryUsage();
       const cpu = process.cpuUsage();
-      // eslint-disable-next-line no-console
+
       console.log(
         JSON.stringify({
           type: 'runtime',
