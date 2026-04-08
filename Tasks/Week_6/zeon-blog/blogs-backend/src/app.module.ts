@@ -12,6 +12,8 @@ import { BlogsModule } from './modules/Blogs/blogs.module';
 import { UsersModule } from './modules/Users/users.module';
 import { AuthModule } from './modules/Auth/auth.module';
 import { UploadModule } from './modules/Upload/upload.module';
+import { DiagnosticsModule } from './diagnostics/diagnostics.module';
+import { TelemetryModule } from './common/telemetry/telemetry.module';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Module({
@@ -33,7 +35,8 @@ import { UploadModule } from './modules/Upload/upload.module';
       rootPath: join(process.cwd(), 'lib', 'store'),
       serveRoot: '/v1/uploads',
     }),
-    HealthModule, BlogsModule, UsersModule, AuthModule, UploadModule,
+    TelemetryModule,
+    HealthModule, BlogsModule, UsersModule, AuthModule, UploadModule, DiagnosticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
