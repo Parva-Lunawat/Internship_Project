@@ -41,7 +41,7 @@ export default function LoginForm() {
                     onChange={(e) => setInput((prev) => ({ ...prev, email: e.target.value }))}
                     type="email"
                     placeholder="you@example.com"
-                    className="h-11 w-full rounded-lg border px-3 text-sm outline-none focus:border-gray-400"
+                    className="h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
                     required
                 />
             </div>
@@ -53,7 +53,7 @@ export default function LoginForm() {
                     onChange={(e) => setInput((prev) => ({ ...prev, password: e.target.value }))}
                     type="password"
                     placeholder="••••••••"
-                    className="h-11 w-full rounded-lg border px-3 text-sm outline-none focus:border-gray-400"
+                    className="h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
                     required
                 />
             </div>

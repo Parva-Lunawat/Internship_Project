@@ -26,9 +26,22 @@ type Aggregate = {
 export class MetricsService {
   private readonly slowThresholdMs = Number(process.env.SLOW_THRESHOLD_MS) || 750;
   private readonly recentLimit = Number(process.env.METRICS_RECENT_LIMIT) || 500;
+  private readonly aggregateKeyLimit = Number(process.env.METRICS_AGGREGATE_LIMIT) || 300;
 
   private recent: RequestMetric[] = [];
   private aggregates = new Map<AggregateKey, Aggregate>();
+  private aggregateOverflowCount = 0;
+
+  private evictIfNeededForNewKey(newKey: AggregateKey) {
+    if (this.aggregates.has(newKey)) return;
+    if (this.aggregates.size < this.aggregateKeyLimit) return;
+
+    const oldestKey = this.aggregates.keys().next().value as AggregateKey | undefined;
+    if (oldestKey) {
+      this.aggregates.delete(oldestKey);
+      this.aggregateOverflowCount += 1;
+    }
+  }
 
   recordRequest(metric: RequestMetric) {
     this.recent.push(metric);
@@ -37,6 +50,7 @@ export class MetricsService {
     }
 
     const key = `${metric.method} ${metric.route}`;
+    this.evictIfNeededForNewKey(key);
     const existing = this.aggregates.get(key);
     const isError = metric.statusCode >= 400;
     const isSlow = metric.durationMs >= this.slowThresholdMs;
@@ -83,6 +97,8 @@ export class MetricsService {
     return {
       ts: new Date().toISOString(),
       slowThresholdMs: this.slowThresholdMs,
+      aggregateKeyLimit: this.aggregateKeyLimit,
+      aggregateOverflowCount: this.aggregateOverflowCount,
       recent: this.recent,
       aggregates,
     };

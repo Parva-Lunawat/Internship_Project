@@ -38,14 +38,31 @@ export class HttpExceptionFilter implements ExceptionFilter {
       if (Array.isArray(raw)) message = raw.join(', ');
       else if (typeof raw === 'string') message = raw;
       else message = 'Request failed';
-    } else if (exception instanceof Error) {
-      message = exception.message || message;
     }
 
     const errorCategory = classifyError(statusCode, exception);
     (res.locals as any).errorCategory = errorCategory;
 
     const requestId = (req as any).requestId as string | undefined;
+    if (!isHttp) {
+      const logPayload = {
+        type: 'unexpected_error',
+        requestId,
+        method: req.method,
+        path: req.originalUrl,
+        timestamp: new Date().toISOString(),
+        error:
+          exception instanceof Error
+            ? {
+                name: exception.name,
+                message: exception.message,
+                stack: exception.stack,
+              }
+            : String(exception),
+      };
+      // eslint-disable-next-line no-console
+      console.error(JSON.stringify(logPayload));
+    }
 
     res.status(statusCode).json({
       error: {
@@ -60,4 +77,3 @@ export class HttpExceptionFilter implements ExceptionFilter {
     });
   }
 }
-

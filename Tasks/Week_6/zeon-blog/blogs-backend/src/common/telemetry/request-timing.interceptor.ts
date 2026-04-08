@@ -1,19 +1,13 @@
 import {
   CallHandler,
   ExecutionContext,
+  HttpException,
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, tap, throwError } from 'rxjs';
 import type { Request, Response } from 'express';
 import { MetricsService } from './metrics.service';
-
-function toRouteLabel(req: Request): string {
-  // Prefer Express route pattern when available (more stable than raw URL)
-  const route = (req as any).route?.path;
-  if (typeof route === 'string') return route;
-  return req.path;
-}
 
 function classifyByStatus(statusCode: number): string {
   if (statusCode === 400) return 'validation';
@@ -26,8 +20,21 @@ function classifyByStatus(statusCode: number): string {
   return 'error';
 }
 
+function normalizeRoute(req: Request, statusCode: number): string {
+  const route = (req as any).route?.path;
+  if (typeof route === 'string' && route.length > 0) {
+    return route;
+  }
+  if (statusCode === 404) {
+    return '__unmatched__';
+  }
+  return '__unknown_route__';
+}
+
 @Injectable()
 export class RequestTimingInterceptor implements NestInterceptor {
+  private readonly shouldLogRequests = process.env.BENCHMARK_REQUEST_LOGS === '1';
+
   constructor(private readonly metrics: MetricsService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -39,13 +46,12 @@ export class RequestTimingInterceptor implements NestInterceptor {
     const ts = new Date().toISOString();
     const requestId = (req as any).requestId as string | undefined;
     const method = req.method;
-    const route = toRouteLabel(req);
-
     return next.handle().pipe(
       tap({
         next: () => {
           const durationMs = Number(process.hrtime.bigint() - start) / 1e6;
           const statusCode = res.statusCode;
+          const route = normalizeRoute(req, statusCode);
           const errorCategory =
             ((res.locals as any)?.errorCategory as string | undefined) ??
             (statusCode >= 400 ? classifyByStatus(statusCode) : undefined);
@@ -61,31 +67,37 @@ export class RequestTimingInterceptor implements NestInterceptor {
           };
 
           this.metrics.recordRequest(metric);
-          // Machine-readable single-line JSON log for benchmarks.
+          if (this.shouldLogRequests) {
+            // eslint-disable-next-line no-console
+            console.log(JSON.stringify({ type: 'request', ...metric }));
+          }
+        },
+      }),
+      catchError((err: unknown) => {
+        const durationMs = Number(process.hrtime.bigint() - start) / 1e6;
+        const statusCode = err instanceof HttpException ? err.getStatus() : 500;
+        const route = normalizeRoute(req, statusCode);
+        const errorCategory =
+          ((res.locals as any)?.errorCategory as string | undefined) ??
+          classifyByStatus(statusCode);
+
+        const metric = {
+          ts,
+          method,
+          route,
+          statusCode,
+          durationMs,
+          requestId,
+          errorCategory,
+        };
+
+        this.metrics.recordRequest(metric);
+        if (this.shouldLogRequests) {
           // eslint-disable-next-line no-console
           console.log(JSON.stringify({ type: 'request', ...metric }));
-        },
-        error: () => {
-          const durationMs = Number(process.hrtime.bigint() - start) / 1e6;
-          const statusCode = res.statusCode || 500;
-          const errorCategory =
-            ((res.locals as any)?.errorCategory as string | undefined) ??
-            classifyByStatus(statusCode);
+        }
 
-          const metric = {
-            ts,
-            method,
-            route,
-            statusCode,
-            durationMs,
-            requestId,
-            errorCategory,
-          };
-
-          this.metrics.recordRequest(metric);
-          // eslint-disable-next-line no-console
-          console.log(JSON.stringify({ type: 'request', ...metric }));
-        },
+        return throwError(() => err);
       }),
     );
   }

@@ -13,7 +13,7 @@ import { UsersModule } from './modules/Users/users.module';
 import { AuthModule } from './modules/Auth/auth.module';
 import { UploadModule } from './modules/Upload/upload.module';
 import { DiagnosticsModule } from './diagnostics/diagnostics.module';
-import { MetricsService } from './common/telemetry/metrics.service';
+import { TelemetryModule } from './common/telemetry/telemetry.module';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Module({
@@ -35,9 +35,10 @@ import { MetricsService } from './common/telemetry/metrics.service';
       rootPath: join(process.cwd(), 'lib', 'store'),
       serveRoot: '/v1/uploads',
     }),
+    TelemetryModule,
     HealthModule, BlogsModule, UsersModule, AuthModule, UploadModule, DiagnosticsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, MetricsService],
+  providers: [AppService],
 })
 export class AppModule { }
