@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Navbar />
             <main className="flex-grow w-full mx-auto max-w-7xl px-6 py-10">{children}</main>
             <Footer />
-            <ToastContainer position="bottom-right" autoClose={3000} />
+            <ToastContainer position="top-right" autoClose={3000} />
           </ThemeProvider>
         </ReduxProvider>
       </body>

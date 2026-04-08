@@ -3,6 +3,7 @@
 import React, { useState, useRef } from "react";
 import { X, Upload, Image as ImageIcon, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { uploadImage } from "../../../lib/api/uploadApi";
+import { toast } from "react-toastify";
 
 
 interface ImageUploadModalProps {
@@ -16,7 +17,6 @@ export default function ImageUploadModal({ isOpen, onClose, onUploadSuccess }: I
     const [preview, setPreview] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     if (!isOpen) return null;
@@ -46,7 +46,7 @@ export default function ImageUploadModal({ isOpen, onClose, onUploadSuccess }: I
 
         try {
             const data = await uploadImage(file);
-            setSuccess(true);
+            toast.success("Image uploaded successfully!");
             setTimeout(() => {
                 onUploadSuccess(data.url);
                 resetAndClose();
@@ -62,7 +62,6 @@ export default function ImageUploadModal({ isOpen, onClose, onUploadSuccess }: I
         setFile(null);
         setPreview(null);
         setError(null);
-        setSuccess(false);
         onClose();
     };
 
@@ -123,12 +122,7 @@ export default function ImageUploadModal({ isOpen, onClose, onUploadSuccess }: I
                         </div>
                     )}
 
-                    {success && (
-                        <div className="flex items-center p-4 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-xl text-sm">
-                            <CheckCircle2 className="h-4 w-4 mr-2 flex-shrink-0" />
-                            Image uploaded successfully!
-                        </div>
-                    )}
+
                 </div>
 
                 {/* Footer */}
@@ -141,7 +135,7 @@ export default function ImageUploadModal({ isOpen, onClose, onUploadSuccess }: I
                     </button>
                     <button 
                         onClick={handleUpload}
-                        disabled={!file || uploading || success}
+                        disabled={!file || uploading}
                         className="flex-1 px-4 py-2.5 rounded-xl bg-black dark:bg-white text-white dark:text-black font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center"
                     >
                         {uploading ? (

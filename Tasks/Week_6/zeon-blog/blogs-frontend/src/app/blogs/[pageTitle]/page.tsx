@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getPublishedPostByPageTitle } from "@/src/lib/api/blogsApi";
 import ReactMarkdown from "react-markdown";
+import { resolveImageUrl } from "@/src/lib/utils/urlUtils";
 
 type pageParams = {
     params: Promise<{ pageTitle: string }>;
@@ -38,8 +39,8 @@ export default async function Page({ params }: pageParams) {
                             </div>
                         </div>
                         <div>
-                            <img src={post.author.avatar || "/default-avatar.png"}
-                            className="h-22 w-22 rounded-full border-2 border-white"></img>
+                            <img src={resolveImageUrl(post.author.avatar)}
+                            className="h-20 w-20 rounded-full border-2 border-white object-cover"></img>
                         </div>
                     </div>
                 </div>
