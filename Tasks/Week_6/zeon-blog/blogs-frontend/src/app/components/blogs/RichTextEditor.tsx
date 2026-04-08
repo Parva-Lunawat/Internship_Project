@@ -1,6 +1,6 @@
 "use client";
 
-import { useEditor, EditorContent, isActive } from "@tiptap/react";
+import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "@tiptap/markdown";
 import Link from "@tiptap/extension-link";
@@ -44,8 +44,8 @@ const ToolbarButton = ({
     title={title}
     className={`p-2 rounded-lg transition-all duration-200 ${
       isActive
-        ? "bg-black text-white shadow-inner"
-        : "text-gray-600 hover:bg-gray-100/80 hover:text-black"
+        ? "bg-black text-white shadow-inner dark:bg-sky-500 dark:text-slate-950"
+        : "text-gray-600 hover:bg-gray-100/80 hover:text-black dark:text-gray-300 dark:hover:bg-slate-700 dark:hover:text-sky-100"
     }`}
   >
     {children}
@@ -82,7 +82,7 @@ export default function RichTextEditor({ content, setContent }: RichTextEditorPr
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl m-5 focus:outline-none max-w-none min-h-[400px]",
+          "prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl m-5 max-w-none min-h-[400px] focus:outline-none dark:prose-invert",
       },
     },
   });
@@ -115,14 +115,14 @@ export default function RichTextEditor({ content, setContent }: RichTextEditorPr
 
   if (!editor) {
     return (
-      <div className="w-full h-[400px] bg-gray-50 rounded-3xl border border-gray-200 animate-pulse" />
+      <div className="h-[400px] w-full animate-pulse rounded-3xl border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-slate-900" />
     );
   }
 
   return (
-    <div className="flex flex-col w-full bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm transition-all duration-300 focus-within:border-black/20 focus-within:shadow-xl group">
+    <div className="group flex w-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition-all duration-300 focus-within:border-black/20 focus-within:shadow-xl dark:border-slate-600 dark:bg-[#08162e] dark:focus-within:border-sky-500/40">
       {/* Premium Glassmorphic Toolbar */}
-      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-1 p-2 bg-white/60 backdrop-blur-xl border-b border-gray-100 group-focus-within:border-gray-200">
+      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-1 border-b border-gray-100 bg-white/60 p-2 backdrop-blur-xl group-focus-within:border-gray-200 dark:border-slate-600 dark:bg-[#08162e]/80">
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           isActive={editor.isActive("bold")}
@@ -138,7 +138,7 @@ export default function RichTextEditor({ content, setContent }: RichTextEditorPr
           <Italic className="h-4 w-4" />
         </ToolbarButton>
         
-        <div className="w-[1px] h-6 bg-gray-200 mx-1" />
+        <div className="mx-1 h-6 w-[1px] bg-gray-200 dark:bg-slate-600" />
 
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
@@ -155,7 +155,7 @@ export default function RichTextEditor({ content, setContent }: RichTextEditorPr
           <Heading2 className="h-4 w-4" />
         </ToolbarButton>
 
-        <div className="w-[1px] h-6 bg-gray-200 mx-1" />
+        <div className="mx-1 h-6 w-[1px] bg-gray-200 dark:bg-slate-600" />
 
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -179,7 +179,7 @@ export default function RichTextEditor({ content, setContent }: RichTextEditorPr
           <Quote className="h-4 w-4" />
         </ToolbarButton>
 
-        <div className="w-[1px] h-6 bg-gray-200 mx-1" />
+        <div className="mx-1 h-6 w-[1px] bg-gray-200 dark:bg-slate-600" />
 
         <ToolbarButton onClick={setLink} isActive={editor.isActive("link")} title="Link">
           <LinkIcon className="h-4 w-4" />
@@ -205,16 +205,16 @@ export default function RichTextEditor({ content, setContent }: RichTextEditorPr
       </div>
 
       {/* Editor Content Area */}
-      <div className="bg-white px-4 py-2 overflow-auto h-[75vh]">
+      <div className="h-[75vh] overflow-auto bg-white px-4 py-2 dark:bg-[#08162e] dark:text-sky-50">
         <EditorContent editor={editor} />
       </div>
       
       {/* Subtle Status Bar */}
-      <div className="px-6 py-2 bg-gray-50/50 border-t border-gray-100 flex justify-between items-center">
-        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
+      <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50/50 px-6 py-2 dark:border-slate-600 dark:bg-[#0a1b35]">
+        <span className="text-[10px] font-medium uppercase tracking-widest text-gray-400 dark:text-slate-300">
             Markdown Mode
         </span>
-        <span className="text-[10px] text-gray-400 font-medium">
+        <span className="text-[10px] font-medium text-gray-400 dark:text-slate-300">
             {/* {editor.storage.markdown?.getMarkdown()?.split(/\s+/)?.filter(Boolean)?.length || 0} words */}
         </span>
       </div>

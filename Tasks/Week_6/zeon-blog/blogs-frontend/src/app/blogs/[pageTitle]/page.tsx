@@ -13,13 +13,13 @@ export default async function Page({ params }: pageParams) {
     if (!post) notFound();
 
     return (
-        <article className="flex flex-col gap-6 prose max-w-none m-10" >
+        <article className="prose m-10 flex max-w-none flex-col gap-6 dark:prose-invert" >
             <div className="flex flex-col gap-4 pb-4">
                 <h1 className="text-4xl font-bold">{post.title}</h1>
-                <p className="text-lg italic break-words">{post.excerpt}</p>
+                <p className="break-words text-lg italic text-gray-700 dark:text-gray-300">{post.excerpt}</p>
             </div>
-            <div className="relative overflow-hidden border">
-                <div className="aspect-[16/9] w-full overflow-hidden bg-gray-100">
+            <div className="relative overflow-hidden border border-gray-200 dark:border-gray-800">
+                <div className="aspect-[16/9] w-full overflow-hidden bg-gray-100 dark:bg-gray-900">
                     <img
                         src={post.coverImage}
                         alt={post.title}
@@ -40,18 +40,18 @@ export default async function Page({ params }: pageParams) {
                         </div>
                         <div>
                             <img src={resolveImageUrl(post.author.avatar)}
-                            className="h-20 w-20 rounded-full border-2 border-white object-cover"></img>
+                            className="h-20 w-20 rounded-full border-2 border-white object-cover" />
                         </div>
                     </div>
                 </div>
             </div>
-            <div className="prose prose-stone max-w-none prose-headings:font-bold prose-a:text-black prose-img:rounded-3xl prose-pre:bg-gray-900 prose-pre:rounded-2xl leading-relaxed text-justify">
+            <div className="prose prose-stone max-w-none text-justify leading-relaxed prose-headings:font-bold prose-a:text-black prose-img:rounded-3xl prose-pre:rounded-2xl prose-pre:bg-gray-900 dark:prose-invert dark:prose-a:text-sky-300">
                 <ReactMarkdown
                     components={{
-                        img: ({ node, ...props }) => (
+                        img: ({ ...props }) => (
                             <img 
                                 {...props} 
-                                className="mx-auto block rounded-3xl border border-gray-100 shadow-xl w-full max-w-[800px] object-cover my-12" 
+                                className="mx-auto my-12 block w-full max-w-[800px] rounded-3xl border border-gray-100 object-cover shadow-xl dark:border-gray-700" 
                                 alt={props.alt || "Blog image"}
                             />
                         )

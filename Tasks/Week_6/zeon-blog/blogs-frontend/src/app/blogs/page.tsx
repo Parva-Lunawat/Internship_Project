@@ -24,7 +24,7 @@ export default async function PaginatedBlogsPage({ searchParams }: pageProp) {
       <header className="space-y-2">
         <h1 className="text-3xl font-bold">All blog posts</h1>
         <SearchBar />
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-300">
           {query || tag
             ? `Showing results${query ? ` for "${query}"` : ""}${tag ? ` in #${tag}` : ""}`
             : "Browse everything we've published."}
@@ -37,7 +37,7 @@ export default async function PaginatedBlogsPage({ searchParams }: pageProp) {
           blogs.map((post: BlogPost) => (
             <BlogCard key={post.pageTitle} post={post} />
           ))) : (
-          <p className="col-span-full py-10 text-center text-gray-500">
+          <p className="col-span-full py-10 text-center text-gray-500 dark:text-gray-400">
             No posts found.
           </p>
         )}

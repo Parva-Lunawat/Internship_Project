@@ -12,6 +12,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = Number(process.env.PORT) || 3000;
   const corsOrigin = process.env.CORS_ORIGIN;
+  const allowedOrigins = corsOrigin
+    ? corsOrigin.split(',').map((origin) => origin.trim()).filter(Boolean)
+    : ['http://localhost:5173', 'http://localhost:3000'];
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({
@@ -25,8 +28,17 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new RequestTimingInterceptor(app.get(MetricsService)));
   app.enableCors({
-    origin: corsOrigin, // Frontend dev port
-    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    origin: (origin, callback) => {
+      // Allow non-browser requests (no Origin header), and browser requests from allowlist.
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(new Error(`CORS origin blocked: ${origin}`));
+    },
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-client-id', 'x-request-source', 'x-request-id'],
+    exposedHeaders: ['x-request-id'],
     credentials: true,
   });
   app.enableVersioning({

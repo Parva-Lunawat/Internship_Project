@@ -30,8 +30,8 @@ export default function Pagination({ currentPage, totalPages, basePath, extraPar
         <nav className="flex items-center justify-between pt-6 text-sm">
             <Link href={hrefBuilder(basePath, Math.max(1, currentPage - 1), extraParams)} scroll={false}
                 className={`w-24 text-center rounded-xl border px-3 py-2 ${currentPage === 1
-                    ? "pointer-events-none text-gray-400"
-                    : "hover:bg-gray-50"
+                    ? "pointer-events-none text-gray-400 dark:text-gray-600"
+                    : "hover:bg-gray-50 dark:hover:bg-slate-800 dark:border-gray-700"
                     }`}
             >Previous</Link>
             <div className="flex items-center gap-1">
@@ -43,8 +43,8 @@ export default function Pagination({ currentPage, totalPages, basePath, extraPar
                             key={page} scroll={false}
                             href={hrefBuilder(basePath, page, extraParams)}
                             className={`h-9 w-9 rounded-xl text-center leading-9 ${isActive
-                                ? "bg-gray-900 text-white"
-                                : "border hover:bg-gray-50"
+                                ? "bg-gray-900 text-white dark:bg-sky-500 dark:text-slate-950"
+                                : "border hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-slate-800"
                                 }`}
                         >
                             {page}
@@ -54,8 +54,8 @@ export default function Pagination({ currentPage, totalPages, basePath, extraPar
             </div>
             <Link href={hrefBuilder(basePath, Math.min(totalPages, currentPage + 1), extraParams)} scroll={false}
                 className={`w-24 text-center rounded-xl border px-3 py-2 ${currentPage === totalPages
-                    ? "pointer-events-none text-gray-400"
-                    : "hover:bg-gray-50"
+                    ? "pointer-events-none text-gray-400 dark:text-gray-600"
+                    : "hover:bg-gray-50 dark:hover:bg-slate-800 dark:border-gray-700"
                     }`}
             >Next</Link>
         </nav>

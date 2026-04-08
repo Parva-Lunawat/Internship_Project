@@ -42,7 +42,7 @@ export default function SignupForm() {
                 <input value={form.name}
                     onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
                     placeholder="Enter Your Name..."
-                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-2 text-gray-900 placeholder:text-gray-400 focus:border-black dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
+                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-2 text-gray-900 placeholder:text-gray-400 focus:border-black dark:border-gray-700 dark:bg-slate-900 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-sky-400"
                     required />
             </div>
             <div className="space-y-1 flex gap-4 items-center">
@@ -50,7 +50,7 @@ export default function SignupForm() {
                 <input value={form.email}
                     onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
                     placeholder="example@gmail.com"
-                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-2 text-gray-900 placeholder:text-gray-400 focus:border-black dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
+                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-2 text-gray-900 placeholder:text-gray-400 focus:border-black dark:border-gray-700 dark:bg-slate-900 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-sky-400"
                     required />
             </div>
             <div className="space-y-1 flex gap-4 items-center">
@@ -58,7 +58,7 @@ export default function SignupForm() {
                 <input value={form.password} type="password"
                     onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
                     placeholder="Set Password"
-                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-2 text-gray-900 placeholder:text-gray-400 focus:border-black dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
+                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-2 text-gray-900 placeholder:text-gray-400 focus:border-black dark:border-gray-700 dark:bg-slate-900 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-sky-400"
                     required />
             </div>
             <div className="space-y-1 flex gap-4 items-center">
@@ -66,15 +66,15 @@ export default function SignupForm() {
                 <input value={form.confirmPass} type="password"
                     onChange={(e) => setForm((prev) => ({ ...prev, confirmPass: e.target.value }))}
                     placeholder="Confirm Password"
-                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-2 text-gray-900 placeholder:text-gray-400 focus:border-black dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
+                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-2 text-gray-900 placeholder:text-gray-400 focus:border-black dark:border-gray-700 dark:bg-slate-900 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-sky-400"
                     required />
             </div>
 
             <button type="submit"
                 disabled={!canSubmit || isPending}
                 className={`h-11 w-full rounded-lg px-4 text-sm font-medium text-white transition ${!canSubmit || isPending
-                    ? "bg-gray-300"
-                    : "bg-gray-900 hover:bg-black"
+                    ? "bg-gray-300 dark:bg-gray-700 dark:text-gray-300"
+                    : "bg-gray-900 hover:bg-black dark:bg-sky-500 dark:text-slate-950 dark:hover:bg-sky-400"
                     }`}
             >
                 {isPending ? "Creating..." : "Create account"}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEditor, EditorContent, isActive as isActive2 } from "@tiptap/react";
+import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "@tiptap/markdown";
 import Link from "@tiptap/extension-link";
@@ -21,8 +21,8 @@ const ToolBarButton = ({
 }) => (
     <button
         type="button" onClick={onClick}
-        title={title} className={`p-2 rounded-lg transition-all duration-100 ${isActive2 ?
-            "bg-black text-white shadow-md" : "text-grey hover:bg-gray-200 hover:text-black"
+        title={title} className={`rounded-lg p-2 transition-all duration-100 ${isActive2 ?
+            "bg-gray-900 text-white shadow-md dark:bg-sky-500 dark:text-slate-950" : "text-gray-600 hover:bg-gray-200 hover:text-black dark:text-gray-300 dark:hover:bg-slate-700 dark:hover:text-sky-100"
             }`}
     >
         {children}
@@ -62,7 +62,7 @@ export default function TrueTextEditor({ content, setContent }: {
         editorProps: {
             attributes: {
                 class:
-                    "prose prose-base m-5 focus:outline-none max-w-none min-h-[400px] text-base leading-none",
+                    "prose prose-base m-5 max-w-none min-h-[400px] text-base leading-normal focus:outline-none dark:prose-invert",
             },
         }
     });
@@ -85,7 +85,7 @@ export default function TrueTextEditor({ content, setContent }: {
         }
         try {
             editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-        } catch (e) {
+        } catch {
             toast.error("Invalid URL format!");
         }
     }, [editor]);
@@ -97,8 +97,8 @@ export default function TrueTextEditor({ content, setContent }: {
     if (!editor) return null;
 
     return (
-        <div className="flex flex-col w-full bg-white rounded-3xl border border-gray-200 overflow-auto shadow-sm transition-all duration-100 focus-within:border-black/20 focus-within:shadow-xl ">
-            <div className="flex flex-wrap sticky top-0 z-10 items-center justify-center gap-1 p-2 bg-white/60 backdrop-blur-xl border-black border-gray-100 group-focus-within:border-gray-200">
+        <div className="flex w-full flex-col overflow-auto rounded-3xl border border-gray-200 bg-white shadow-sm transition-all duration-100 focus-within:border-black/20 focus-within:shadow-xl dark:border-slate-600 dark:bg-[#08162e] dark:focus-within:border-sky-500/40">
+            <div className="sticky top-0 z-10 flex flex-wrap items-center justify-center gap-1 border-b border-gray-100 bg-white/60 p-2 backdrop-blur-xl group-focus-within:border-gray-200 dark:border-slate-600 dark:bg-[#08162e]/80">
                 <ToolBarButton
                     onClick={() => editor.chain().focus().toggleBold().run()}
                     isActive2={editor.isActive('bold')} title="Bold"
@@ -113,18 +113,18 @@ export default function TrueTextEditor({ content, setContent }: {
                 </ToolBarButton>
                 <ToolBarButton
                     onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                    isActive2={editor.isActive('Heading', { level: 1 })} title="Heading 1"
+                    isActive2={editor.isActive('heading', { level: 1 })} title="Heading 1"
                 >
                     <Heading1 className="h-4 w-4" />
                 </ToolBarButton>
                 <ToolBarButton
                     onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                    isActive2={editor.isActive('Heading', { level: 2 })} title="Heading 2"
+                    isActive2={editor.isActive('heading', { level: 2 })} title="Heading 2"
                 >
                     <Heading2 className="h-4 w-4" />
                 </ToolBarButton>
 
-                <div className="border-l-2 border-gray-200 h-6"></div>
+                <div className="h-6 border-l-2 border-gray-200 dark:border-slate-600"></div>
 
                 <ToolBarButton
                     onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -148,7 +148,7 @@ export default function TrueTextEditor({ content, setContent }: {
                     <Quote className="h-4 w-4" />
                 </ToolBarButton>
 
-                <div className="border-l-2 border-gray-200 h-6"></div>
+                <div className="h-6 border-l-2 border-gray-200 dark:border-slate-600"></div>
 
                 <ToolBarButton onClick={setLink} isActive2={editor.isActive("link")} title="Link">
                     <LinkIcon className="h-4 w-4" />
@@ -172,14 +172,14 @@ export default function TrueTextEditor({ content, setContent }: {
                     <Redo className="h-4 w-4" />
                 </ToolBarButton>
             </div>
-            <div className="bg-white px-4 py-2 overflow-auto h-[75vh] text-base">
+            <div className="h-[75vh] overflow-auto bg-white px-4 py-2 text-base text-gray-900 dark:bg-[#08162e] dark:text-sky-50">
                 <EditorContent editor={editor} />
             </div>
-            <div className="px-6 py-2 bg-gray-50/50 border-t border-gray-100 flex justify-between items-center">
-                <span className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
+            <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50/50 px-6 py-2 dark:border-slate-600 dark:bg-[#0a1b35]">
+                <span className="text-[10px] font-medium uppercase tracking-widest text-gray-400 dark:text-slate-300">
                     Markdown Mode
                 </span>
-                <span className="text-[10px] text-gray-400 font-medium">
+                <span className="text-[10px] font-medium text-gray-400 dark:text-slate-300">
                     {/* {editor.storage.markdown?.getMarkdown()?.split(/\s+/)?.filter(Boolean)?.length || 0} words */}
                 </span>
             </div>

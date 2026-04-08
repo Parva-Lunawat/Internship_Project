@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BlogPost, getMyBlogs, deleteMyBlog, BlogsApiResponse } from "@/src/lib/api/blogsApi";
-import { Plus, Search, Edit, Trash2, Eye, Loader2, FileText, Calendar } from "lucide-react";
+import { getMyBlogs, deleteMyBlog, BlogsApiResponse } from "@/src/lib/api/blogsApi";
+import { Search, Edit, Trash2, Eye, Loader2, FileText, Calendar } from "lucide-react";
 import Link from "next/link";
 import Pagination from "@/src/app/blogs/Pagination";
 
@@ -80,7 +80,7 @@ export default function MyBlogsPage() {
     try {
       await deleteMyBlog(blogId);
       fetchBlogs();
-    } catch (err) {
+    } catch {
       alert("Failed to delete blog");
     } finally {
       setDeletingId(null);
@@ -92,14 +92,14 @@ export default function MyBlogsPage() {
 
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-300">
-      <form onSubmit={handleSearch} className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-8 border-b border-gray-100">
+      <form onSubmit={handleSearch} className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-8 border-b border-gray-100 dark:border-gray-800">
         <div className="flex flex-col md:flex-row flex-1 gap-4 w-full">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
               placeholder="Search titles..."
-              className="w-full pl-10 pr-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all text-sm"
+              className="w-full rounded-xl border border-gray-300 bg-white pl-10 pr-4 py-2 text-sm transition-all focus:border-black focus:outline-none focus:ring-2 focus:ring-black/5 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-sky-400 dark:focus:ring-sky-400/20"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -107,9 +107,9 @@ export default function MyBlogsPage() {
 
           <div className="flex gap-4">
             <select
-              className="px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all text-sm bg-white appearance-none min-w-[120px]"
+              className="min-w-[120px] appearance-none rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm transition-all focus:border-black focus:outline-none focus:ring-2 focus:ring-black/5 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-100 dark:focus:border-sky-400 dark:focus:ring-sky-400/20"
               value={status}
-              onChange={(e) => setStatus(e.target.value as any)}
+              onChange={(e) => setStatus(e.target.value as "draft" | "published" | "")}
             >
               <option value="">All Status</option>
               <option value="published">Published</option>
@@ -120,7 +120,7 @@ export default function MyBlogsPage() {
               <input
                 type="text"
                 placeholder="Filter by tag..."
-                className="pl-4 pr-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all text-sm min-w-[150px]"
+                className="min-w-[150px] rounded-xl border border-gray-300 bg-white pl-4 pr-4 py-2 text-sm transition-all focus:border-black focus:outline-none focus:ring-2 focus:ring-black/5 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-sky-400 dark:focus:ring-sky-400/20"
                 value={tag}
                 onChange={(e) => setTag(e.target.value)}
               />
@@ -128,7 +128,7 @@ export default function MyBlogsPage() {
 
             <button
               type="submit"
-              className="px-6 py-2 bg-black text-white font-bold rounded-xl hover:bg-gray-800 transition-all active:scale-95 text-sm"
+              className="rounded-xl bg-gray-900 px-6 py-2 text-sm font-bold text-white transition-all active:scale-95 hover:bg-black dark:bg-sky-500 dark:text-slate-950 dark:hover:bg-sky-400"
             >
               Search
             </button>
@@ -138,20 +138,20 @@ export default function MyBlogsPage() {
 
       {loading ? (
         <div className="flex h-64 items-center justify-center">
-          <Loader2 className="h-10 w-10 animate-spin text-black opacity-20" />
+          <Loader2 className="h-10 w-10 animate-spin text-black opacity-20 dark:text-white" />
         </div>
       ) : blogsData?.blogs.length === 0 ? (
-        <div className="text-center py-24 rounded-3xl border-2 border-dashed border-gray-100">
-          <FileText className="h-12 w-12 mx-auto mb-4 text-gray-200" />
+        <div className="text-center py-24 rounded-3xl border-2 border-dashed border-gray-100 dark:border-gray-800">
+          <FileText className="h-12 w-12 mx-auto mb-4 text-gray-200 dark:text-gray-700" />
           <h3 className="text-xl font-bold">No results</h3>
-          <p className="text-gray-500 mt-2 mb-8">You haven't created any posts matching your search.</p>
-          <Link href="/write" className="text-black font-bold underline">Write something new</Link>
+          <p className="text-gray-500 mt-2 mb-8 dark:text-gray-400">You haven&apos;t created any posts matching your search.</p>
+          <Link href="/write" className="font-bold underline text-gray-900 dark:text-sky-300">Write something new</Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {blogsData?.blogs.map((blog) => (
-            <div key={blog.id} className="group border rounded-2xl overflow-hidden hover:bg-gray-50 transition-all duration-300 flex flex-col">
-              <div className="aspect-video relative overflow-hidden bg-gray-100 border-b">
+            <div key={blog.id} className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 transition-all duration-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-slate-900 dark:hover:bg-slate-800/70">
+              <div className="aspect-video relative overflow-hidden bg-gray-100 border-b border-gray-200 dark:border-gray-800 dark:bg-gray-900">
                 <img src={blog.coverImage} alt={blog.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" />
                 <div className="absolute top-4 right-4 focus:outline-none">
                   <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${blog.status === 'published' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'
@@ -162,7 +162,7 @@ export default function MyBlogsPage() {
               </div>
 
               <div className="p-5 flex flex-col flex-1">
-                <div className="flex items-center text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-tight">
+                <div className="mb-2 flex items-center text-[10px] font-bold uppercase tracking-tight text-gray-400 dark:text-gray-500">
                   <Calendar className="h-3 w-3 mr-1" />
                   {new Date(blog.createdAt).toLocaleDateString()}
                 </div>
@@ -170,14 +170,14 @@ export default function MyBlogsPage() {
                 <h3 className="text-lg font-bold leading-tight mb-2">
                   {blog.title}
                 </h3>
-                <p className="text-xs text-gray-500 line-clamp-2 mb-6 flex-1">
+                <p className="mb-6 flex-1 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">
                   {blog.excerpt}
                 </p>
 
-                <div className="pt-4 border-t border-gray-50 flex items-center justify-between">
+                <div className="flex items-center justify-between border-t border-gray-50 pt-4 dark:border-gray-800">
                   <Link
                     href={`/blogs/${blog.pageTitle}`}
-                    className="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black transition-colors flex items-center"
+                    className="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-400 transition-colors hover:text-black dark:text-gray-500 dark:hover:text-sky-300"
                   >
                     <Eye className="h-3 w-3 mr-1.5" />
                     Preview
@@ -185,14 +185,14 @@ export default function MyBlogsPage() {
                   <div className="flex gap-1">
                     <button
                       onClick={() => handleEdit(blog.id)}
-                      className="p-2 text-gray-400 hover:text-black hover:bg-white rounded-lg transition-all border border-transparent hover:border-gray-100"
+                      className="rounded-lg border border-transparent p-2 text-gray-400 transition-all hover:border-gray-100 hover:bg-white hover:text-black dark:hover:border-gray-700 dark:hover:bg-slate-900 dark:hover:text-sky-200"
                     >
                       <Edit className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(blog.id)}
                       disabled={deletingId === blog.id}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-white rounded-lg transition-all border border-transparent hover:border-red-100"
+                      className="rounded-lg border border-transparent p-2 text-gray-400 transition-all hover:border-red-100 hover:bg-white hover:text-red-600 dark:hover:border-red-500/30 dark:hover:bg-slate-900"
                     >
                       {deletingId === blog.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                     </button>

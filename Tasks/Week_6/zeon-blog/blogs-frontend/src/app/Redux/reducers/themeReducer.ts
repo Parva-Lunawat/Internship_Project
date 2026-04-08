@@ -4,18 +4,8 @@ type themeState = {
     theme: "light" | "dark";
 };
 
-const getInitialTheme = (): "light" | "dark" => {
-    if (typeof window !== "undefined") {
-        const savedTheme = localStorage.getItem("theme");
-        if (savedTheme === "light" || savedTheme === "dark") {
-            return savedTheme;
-        }
-    }
-    return "light";
-};
-
 const initialState: themeState = {
-    theme: getInitialTheme(),
+    theme: "light",
 };
 
 type ThemeAction =
