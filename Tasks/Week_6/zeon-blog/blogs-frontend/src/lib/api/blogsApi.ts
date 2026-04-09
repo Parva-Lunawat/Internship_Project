@@ -42,6 +42,16 @@ export type DeleteBlogResponse = {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1';
 const formatDate = (date: string | null) => date ? new Date(date).toISOString().split('T')[0] : null;
 
+export class ApiRequestError extends Error {
+    status: number;
+
+    constructor(status: number, message: string) {
+        super(message);
+        this.status = status;
+        this.name = "ApiRequestError";
+    }
+}
+
 async function parseResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
         let errorMessage = `Request failed with status ${response.status}`;
@@ -52,10 +62,10 @@ async function parseResponse<T>(response: Response): Promise<T> {
                     ? errorData.message.join(', ') 
                     : errorData.message;
             }
-        } catch (e) {
+        } catch {
             // Fallback to status text
         }
-        throw new Error(errorMessage);
+        throw new ApiRequestError(response.status, errorMessage);
     }
 
     const data = await response.json();

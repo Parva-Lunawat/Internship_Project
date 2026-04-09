@@ -4,10 +4,9 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppSelector } from "../Redux/customStoreWrapper";
 import { selectAuthUser, selectAuthHydrated } from "../Redux/selector-functions/authSelector";
-import { createBlog, updateMyBlog, getMyBlogById, BlogPost } from "@/src/lib/api/blogsApi";
+import { createBlog, updateMyBlog, getMyBlogById } from "@/src/lib/api/blogsApi";
 import { 
     Save, 
-    X, 
     Image as ImageIcon, 
     Type, 
     FileText, 
@@ -22,11 +21,18 @@ import Link from "next/link";
 import TrueTextEditor from "../components/blogs/trueTextEditor";
 // import RichTextEditor from "../components/blogs/RichTextEditor";
 
+function getErrorMessage(err: unknown, fallback: string) {
+    if (err instanceof Error && err.message) {
+        return err.message;
+    }
+    return fallback;
+}
+
 export default function WriteBlogPage() {
     return (
         <Suspense fallback={
             <div className="flex h-screen items-center justify-center">
-                <Loader2 className="h-10 w-10 animate-spin text-black" />
+                <Loader2 className="h-10 w-10 animate-spin text-black dark:text-sky-200" />
             </div>
         }>
             <WriteBlogContent />
@@ -76,8 +82,8 @@ function WriteBlogContent() {
                         tags: blog.tags.map(t => t.name).join(", "),
                         status: blog.status
                     });
-                } catch (err: any) {
-                    toast.error("Failed to fetch blog for editing: " + err.message);
+                } catch (err: unknown) {
+                    toast.error(`Failed to fetch blog for editing: ${getErrorMessage(err, "Unknown error")}`);
                 } finally {
                     setFetching(false);
                 }
@@ -89,7 +95,7 @@ function WriteBlogContent() {
     if (!hydrated || !user || fetching) {
         return (
             <div className="flex h-screen items-center justify-center">
-                <Loader2 className="h-10 w-10 animate-spin text-black" />
+                <Loader2 className="h-10 w-10 animate-spin text-black dark:text-sky-200" />
             </div>
         );
     }
@@ -120,38 +126,38 @@ function WriteBlogContent() {
             setTimeout(() => {
                 router.push("/dashboard/blogs");
             }, 1000);
-        } catch (err: any) {
-            toast.error(err.message || `Failed to ${blogId ? 'update' : 'create'} blog post`);
+        } catch (err: unknown) {
+            toast.error(getErrorMessage(err, `Failed to ${blogId ? "update" : "create"} blog post`));
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="left-0 right-0 min-h-screen bg-gray-50/50 pb-20">
-            <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div className="left-0 right-0 min-h-screen bg-gradient-to-b from-slate-50 via-slate-100/80 to-gray-100 pb-20 dark:from-[#081124] dark:via-[#0b152b] dark:to-[#050a16]">
+            <header className="sticky top-0 z-30 border-b border-gray-100 bg-white/80 backdrop-blur-md dark:border-slate-700/70 dark:bg-[#07101f]/85">
                 <div className="max-w-full mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <Link 
                             href="/dashboard/blogs" 
-                            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                            className="rounded-full p-2 transition-colors hover:bg-gray-100 dark:hover:bg-slate-800"
                         >
-                            <ArrowLeft className="h-5 w-5" />
+                            <ArrowLeft className="h-5 w-5 text-gray-900 dark:text-sky-100" />
                         </Link>
-                        <h1 className="text-lg font-bold">Write new post</h1>
+                        <h1 className="text-lg font-bold text-gray-900 dark:text-sky-50">Write new post</h1>
                     </div>
                     
                     <div className="flex items-center gap-3">
                         <Link 
                             href="/dashboard/blogs"
-                            className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-black transition-colors"
+                            className="px-4 py-2 text-sm font-bold text-gray-500 transition-colors hover:text-black dark:text-gray-300 dark:hover:text-sky-200"
                         >
                             Cancel
                         </Link>
                         <button
                             onClick={handleSubmit}
                             disabled={loading}
-                            className="px-6 py-2 bg-black text-white text-sm font-bold rounded-xl hover:bg-gray-800 transition-all active:scale-95 disabled:opacity-50 flex items-center"
+                            className="flex items-center rounded-xl bg-gray-900 px-6 py-2 text-sm font-bold text-white transition-all active:scale-95 hover:bg-black disabled:opacity-50 dark:bg-sky-500 dark:text-slate-950 dark:hover:bg-sky-400"
                         >
                             {loading ? (
                                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -170,82 +176,82 @@ function WriteBlogContent() {
 
                     <div className="grid grid-cols-1 gap-y-8 items-start">
                         {/* Part 1: Left Column (Metadata) */}
-                        <div className="col-span-1 space-y-6 bg-white rounded-3xl border border-gray-200 p-6 shadow-sm">
-                            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest border-b pb-4">Post Settings</h2>
+                        <div className="col-span-1 space-y-6 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#0c1a33]/95 dark:shadow-[0_20px_40px_rgba(0,0,0,0.35)]">
+                            <h2 className="border-b border-gray-200 pb-4 text-xs font-bold uppercase tracking-widest text-gray-400 dark:border-slate-700 dark:text-sky-200/70">Post Settings</h2>
                             
                             <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <label className="flex items-center text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">
-                                        <Type className="h-3 w-3 mr-2 text-black" />
+                                    <label className="flex items-center pl-1 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-300">
+                                        <Type className="mr-2 h-3 w-3 text-black dark:text-sky-300" />
                                         Main Title
                                     </label>
                                     <input 
                                         type="text"
                                         required
                                         placeholder="Enter a catchy title..."
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all text-sm font-bold"
+                                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-bold transition-all focus:border-black focus:outline-none focus:ring-2 focus:ring-black/5 dark:border-slate-600 dark:bg-[#09162d] dark:text-sky-50 dark:placeholder:text-slate-400 dark:focus:border-sky-400 dark:focus:ring-sky-400/20"
                                         value={formData.title}
                                         onChange={(e) => setFormData({...formData, title: e.target.value})}
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="flex items-center text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">
-                                        <Globe className="h-3 w-3 mr-2 text-black" />
+                                    <label className="flex items-center pl-1 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-300">
+                                        <Globe className="mr-2 h-3 w-3 text-black dark:text-sky-300" />
                                         URL Slug
                                     </label>
                                     <input 
                                         type="text"
                                         required
                                         placeholder="my-awesome-post"
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all text-sm font-mono"
+                                        className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 font-mono text-sm transition-all focus:border-black focus:outline-none focus:ring-2 focus:ring-black/5 dark:border-slate-600 dark:bg-[#09162d] dark:text-sky-50 dark:placeholder:text-slate-400 dark:focus:border-sky-400 dark:focus:ring-sky-400/20"
                                         value={formData.pageTitle}
                                         onChange={(e) => setFormData({...formData, pageTitle: e.target.value.toLowerCase().replace(/\s+/g, '-')})}
                                     />
-                                    <p className="text-[10px] text-gray-400 pl-1">Unique identifier for the URL.</p>
+                                    <p className="pl-1 text-[10px] text-gray-400 dark:text-slate-400">Unique identifier for the URL.</p>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="flex items-center text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">
-                                        <ImageIcon className="h-3 w-3 mr-2 text-black" />
+                                    <label className="flex items-center pl-1 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-300">
+                                        <ImageIcon className="mr-2 h-3 w-3 text-black dark:text-sky-300" />
                                         Cover Image URL
                                     </label>
                                     <input 
                                         type="text"
                                         placeholder="https://..."
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all text-sm"
+                                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm transition-all focus:border-black focus:outline-none focus:ring-2 focus:ring-black/5 dark:border-slate-600 dark:bg-[#09162d] dark:text-sky-50 dark:placeholder:text-slate-400 dark:focus:border-sky-400 dark:focus:ring-sky-400/20"
                                         value={formData.coverImage}
                                         onChange={(e) => setFormData({...formData, coverImage: e.target.value})}
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="flex items-center text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">
-                                        <Hash className="h-3 w-3 mr-2 text-black" />
+                                    <label className="flex items-center pl-1 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-300">
+                                        <Hash className="mr-2 h-3 w-3 text-black dark:text-sky-300" />
                                         Tags
                                     </label>
                                     <input 
                                         type="text"
                                         placeholder="tech, news, guide..."
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all text-sm"
+                                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm transition-all focus:border-black focus:outline-none focus:ring-2 focus:ring-black/5 dark:border-slate-600 dark:bg-[#09162d] dark:text-sky-50 dark:placeholder:text-slate-400 dark:focus:border-sky-400 dark:focus:ring-sky-400/20"
                                         value={formData.tags}
                                         onChange={(e) => setFormData({...formData, tags: e.target.value})}
                                     />
                                 </div>
 
                                 <div className="space-y-3 pt-2">
-                                    <label className="flex items-center text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">
-                                        <Lock className="h-3 w-3 mr-2 text-black" />
+                                    <label className="flex items-center pl-1 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-300">
+                                        <Lock className="mr-2 h-3 w-3 text-black dark:text-sky-300" />
                                         Publication Status
                                     </label>
-                                    <div className="flex gap-2 p-1 bg-gray-100 rounded-2xl border border-gray-200">
+                                    <div className="flex gap-2 rounded-2xl border border-gray-200 bg-gray-100 p-1 dark:border-slate-600 dark:bg-[#09162d]">
                                         <button
                                             type="button"
                                             onClick={() => setFormData({...formData, status: 'draft'})}
                                             className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
                                                 formData.status === 'draft' 
-                                                    ? "bg-white text-black shadow-sm" 
-                                                    : "text-gray-400 hover:text-gray-600"
+                                                    ? "bg-white text-black shadow-sm dark:bg-slate-800 dark:text-sky-100" 
+                                                    : "text-gray-400 hover:text-gray-600 dark:text-slate-400 dark:hover:text-slate-200"
                                             }`}
                                         >
                                             Draft
@@ -255,8 +261,8 @@ function WriteBlogContent() {
                                             onClick={() => setFormData({...formData, status: 'published'})}
                                             className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
                                                 formData.status === 'published' 
-                                                    ? "bg-black text-white shadow-sm" 
-                                                    : "text-gray-400 hover:text-gray-600"
+                                                    ? "bg-black text-white shadow-sm dark:bg-sky-500 dark:text-slate-950" 
+                                                    : "text-gray-400 hover:text-gray-600 dark:text-slate-400 dark:hover:text-slate-200"
                                             }`}
                                         >
                                             Publish
@@ -264,13 +270,13 @@ function WriteBlogContent() {
                                     </div>
                                 </div>
                                 <div className="space-y-4">
-                                    <label className="flex items-center text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">
-                                        <FileText className="h-3 w-3 mr-2" />
+                                    <label className="flex items-center pl-1 text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-300">
+                                        <FileText className="mr-2 h-3 w-3" />
                                         Quick Excerpt
                                     </label>
                                     <textarea 
                                         placeholder="Summarize your story in a few sentences..."
-                                        className="w-full px-6 py-4 rounded-2xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all text-sm min-h-[120px] resize-none leading-relaxed"
+                                        className="min-h-[120px] w-full resize-none rounded-2xl border border-gray-300 bg-white px-6 py-4 text-sm leading-relaxed transition-all focus:border-black focus:outline-none focus:ring-2 focus:ring-black/5 dark:border-slate-600 dark:bg-[#09162d] dark:text-sky-50 dark:placeholder:text-slate-400 dark:focus:border-sky-400 dark:focus:ring-sky-400/20"
                                         value={formData.excerpt}
                                         onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
                                     />
@@ -280,10 +286,10 @@ function WriteBlogContent() {
 
                         {/* Part 2: Right Column (Content) */}
                         <div className="col-span-1 lg:col-span-2 space-y-6">
-                            <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm space-y-6">
+                            <div className="space-y-6 rounded-3xl border border-gray-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-[#0c1a33]/95 dark:shadow-[0_20px_40px_rgba(0,0,0,0.35)]">
                                 <div className="space-y-4 pt-4 ">
-                                    <label className="flex items-center text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">
-                                        <FileText className="h-3 w-3 mr-2" />
+                                    <label className="flex items-center pl-1 text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-300">
+                                        <FileText className="mr-2 h-3 w-3" />
                                         Article Content
                                     </label>
                                     <TrueTextEditor 

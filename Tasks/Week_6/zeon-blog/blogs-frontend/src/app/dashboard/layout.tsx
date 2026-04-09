@@ -24,7 +24,7 @@ export default function DashboardLayout({
   if (!hydrated || !user) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-black border-t-transparent"></div>
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-900 border-t-transparent dark:border-gray-200 dark:border-t-transparent"></div>
       </div>
     );
   }
@@ -33,7 +33,7 @@ export default function DashboardLayout({
     <div className="w-full">
       <header className="mb-8">
         <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-gray-600 mt-2">Manage your account, blogs, and settings.</p>
+        <p className="text-gray-600 mt-2 dark:text-gray-400">Manage your account, blogs, and settings.</p>
       </header>
       
       <DashboardNav />

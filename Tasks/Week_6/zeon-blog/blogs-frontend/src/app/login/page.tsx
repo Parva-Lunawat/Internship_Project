@@ -11,7 +11,7 @@ export default function LoginPage() {
             <div className="rounded-2xl border border-gray-200 bg-white p-6 text-gray-600 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300">
                 <LoginForm />
                 <p>
-                    Don't Have an account?{" "}
+                    Don&apos;t Have an account?{" "}
                     <Link className="underline italic text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white"
                     href={"/signup"}>
                         Create One

@@ -62,8 +62,8 @@ export default function LoginForm() {
                 type="submit"
                 disabled={!canSubmit || isPending}
                 className={`h-11 w-full rounded-lg px-4 text-sm font-medium text-white transition ${!canSubmit || isPending
-                    ? "bg-gray-300"
-                    : "bg-gray-900 hover:bg-black"
+                    ? "bg-gray-300 dark:bg-gray-700 dark:text-gray-300"
+                    : "bg-gray-900 hover:bg-black dark:bg-sky-500 dark:text-slate-950 dark:hover:bg-sky-400"
                     }`}
             >
                 {isPending ? "Logging in..." : "Log in"}

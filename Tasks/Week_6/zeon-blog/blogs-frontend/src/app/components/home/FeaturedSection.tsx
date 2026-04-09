@@ -100,7 +100,7 @@ export default async function FeaturedPost() {
     <section className="space-y-6">
       <header className="space-y-2">
         <h1 className="text-3xl font-bold">Featured Blogs</h1>
-        <p className="text-gray-600 italic font-bold">The HOTTEST Posts out there!!!</p>
+        <p className="text-gray-600 italic font-bold dark:text-gray-300">The HOTTEST Posts out there!!!</p>
       </header>
       <div className="grid gap-6 lg:grid-cols-3 items-stretch">
         <div className="lg:col-span-2">
