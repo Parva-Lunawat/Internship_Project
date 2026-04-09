@@ -1,16 +1,30 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1';
 
+function extractErrorMessage(errorData: unknown): string | null {
+    if (!errorData || typeof errorData !== "object") {
+        return null;
+    }
+
+    const payload = errorData as { message?: unknown; error?: { message?: unknown } };
+    const candidate = payload.message ?? payload.error?.message;
+
+    if (Array.isArray(candidate)) {
+        return candidate.join(", ");
+    }
+
+    return typeof candidate === "string" ? candidate : null;
+}
+
 async function parseResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
         let errorMessage = `Request failed with status ${response.status}`;
         try {
             const errorData = await response.json();
-            if (errorData.message) {
-                errorMessage = Array.isArray(errorData.message) 
-                    ? errorData.message.join(', ') 
-                    : errorData.message;
+            const message = extractErrorMessage(errorData);
+            if (message) {
+                errorMessage = message;
             }
-        } catch (e) {
+        } catch {
             // Fallback to error message
         }
         throw new Error(errorMessage);

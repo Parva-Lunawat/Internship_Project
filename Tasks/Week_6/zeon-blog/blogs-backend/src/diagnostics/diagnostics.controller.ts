@@ -1,5 +1,16 @@
-import { Controller, Get, UseGuards, Req, ForbiddenException } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Req,
+  ForbiddenException,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../modules/Auth/guard/jwt-auth.guard';
 import type { CurrentUser } from '../modules/Auth/types/current-user.type';
 import { MetricsService } from '../common/telemetry/metrics.service';
@@ -49,4 +60,3 @@ export class DiagnosticsController {
     };
   }
 }
-

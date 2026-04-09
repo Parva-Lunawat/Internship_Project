@@ -1,4 +1,8 @@
-import { ClassSerializerInterceptor, Module, UseInterceptors } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Module,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -36,9 +40,14 @@ import { TelemetryModule } from './common/telemetry/telemetry.module';
       serveRoot: '/v1/uploads',
     }),
     TelemetryModule,
-    HealthModule, BlogsModule, UsersModule, AuthModule, UploadModule, DiagnosticsModule,
+    HealthModule,
+    BlogsModule,
+    UsersModule,
+    AuthModule,
+    UploadModule,
+    DiagnosticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

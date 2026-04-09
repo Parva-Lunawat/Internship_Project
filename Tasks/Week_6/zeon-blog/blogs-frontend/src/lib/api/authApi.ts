@@ -22,6 +22,21 @@ export type LogoutResponse = {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1';
 
+function extractErrorMessage(errorData: unknown): string | null {
+    if (!errorData || typeof errorData !== "object") {
+        return null;
+    }
+
+    const payload = errorData as { message?: unknown; error?: { message?: unknown } };
+    const candidate = payload.message ?? payload.error?.message;
+
+    if (Array.isArray(candidate)) {
+        return candidate.join(", ");
+    }
+
+    return typeof candidate === "string" ? candidate : null;
+}
+
 async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
     const response = await fetch(url, {
         ...options,
@@ -35,7 +50,7 @@ async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
 
     if (!response.ok) {
         const error = await response.json().catch(() => null);
-        throw new Error(error?.message || 'API request failed');
+        throw new Error(extractErrorMessage(error) || `Request failed with status ${response.status}`);
     }
 
     return response.json();

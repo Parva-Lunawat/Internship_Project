@@ -17,7 +17,11 @@ function sanitizeClientRequestId(value: unknown): string | null {
   return trimmed;
 }
 
-export function requestIdMiddleware(req: Request, res: Response, next: NextFunction) {
+export function requestIdMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const existing = sanitizeClientRequestId(req.header('x-request-id'));
   const requestId = existing ?? generateId();
 

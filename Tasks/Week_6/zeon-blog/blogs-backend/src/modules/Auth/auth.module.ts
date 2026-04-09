@@ -15,15 +15,15 @@ import { JwtStrategy } from './guard/jwt.strategy';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET') || 'dev_key',
+        secret: configService.get<string>('JWT_SECRET') || 'dev-secret',
         signOptions: {
           expiresIn: '1d',
         },
-      })
-    })
-  ], 
+      }),
+    }),
+  ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
-  exports: [AuthService, JwtModule]
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

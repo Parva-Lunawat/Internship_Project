@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
@@ -17,7 +21,7 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   // Helper
   private buildAuthMessage(user: User) {
@@ -46,8 +50,13 @@ export class AuthService {
     const { name, email, password, confirmPassword } = dto;
     const processedEmail = email.trim().toLowerCase();
     const processedName = name.trim();
-    if (password !== confirmPassword) throw new BadRequestException('Password and Confirm password must match.')
-    const existingUser = await this.userRepository.findOne({ where: { email: processedEmail } });
+    if (password !== confirmPassword)
+      throw new BadRequestException(
+        'Password and Confirm password must match.',
+      );
+    const existingUser = await this.userRepository.findOne({
+      where: { email: processedEmail },
+    });
     if (existingUser) throw new BadRequestException('User already exists.');
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -66,12 +75,18 @@ export class AuthService {
     const email = dto.email.trim().toLowerCase();
     const user = await this.userRepository.findOne({ where: { email: email } });
     if (!user) throw new UnauthorizedException('Invalid email or password.');
-    const passwordMatched = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!passwordMatched) throw new UnauthorizedException('Invalid email or password.');
+    const passwordMatched = await bcrypt.compare(
+      dto.password,
+      user.passwordHash,
+    );
+    if (!passwordMatched)
+      throw new UnauthorizedException('Invalid email or password.');
     return this.buildAuthMessage(user);
   }
   async self(currentUser: CurrentUser) {
-    const user = await this.userRepository.findOne({ where: { id: currentUser.id } });
+    const user = await this.userRepository.findOne({
+      where: { id: currentUser.id },
+    });
     if (!user) throw new UnauthorizedException('User not found.');
     return {
       id: user.id,
