@@ -45,10 +45,11 @@ await runScenario({
   setup: async (ctx) => {
     ctx.cookie = await authCookie(ctx.baseUrl);
     ctx.counter = 0;
+    ctx.runId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   },
   worker: async (ctx, workerId) => {
     const i = (ctx.counter += 1);
-    const slug = `bench-${workerId}-${i}`;
+    const slug = `bench-${ctx.runId}-${workerId}-${i}`;
     const url = `${ctx.baseUrl}/blogs`;
     const { res, durationMs } = await timedFetch(url, {
       method: "POST",
@@ -67,7 +68,7 @@ await runScenario({
       }),
     });
     const payload = await readJsonSafe(res);
-    const ok = res.ok && Boolean(payload?.data?.id);
+    const ok = res.ok && Boolean(payload?.id || payload?.data?.id);
     return { ok, durationMs };
   },
 });

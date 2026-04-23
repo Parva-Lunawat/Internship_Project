@@ -6,6 +6,7 @@ import { User } from '../Users/entities/user.entities';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './guard/jwt.strategy';
+import { resolveJwtSecret } from './config/jwt-secret';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { JwtStrategy } from './guard/jwt.strategy';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET') || 'dev-secret',
+        secret: resolveJwtSecret(configService),
         signOptions: {
           expiresIn: '1d',
         },

@@ -175,6 +175,15 @@ export default function MyBlogsPage() {
                 </p>
 
                 <div className="flex items-center justify-between border-t border-gray-50 pt-4 dark:border-gray-800">
+                  {blog.status === "draft" ? (
+                    <Link
+                      href={`/dashboard/blogs/preview/${blog.id}`}
+                      className="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-400 transition-colors hover:text-black dark:text-gray-500 dark:hover:text-sky-300"
+                    >
+                      <Eye className="h-3 w-3 mr-1.5" />
+                      Preview
+                    </Link>
+                  ) : (
                   <Link
                     href={`/blogs/${blog.pageTitle}`}
                     className="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-400 transition-colors hover:text-black dark:text-gray-500 dark:hover:text-sky-300"
@@ -182,6 +191,7 @@ export default function MyBlogsPage() {
                     <Eye className="h-3 w-3 mr-1.5" />
                     Preview
                   </Link>
+                  )}
                   <div className="flex gap-1">
                     <button
                       onClick={() => handleEdit(blog.id)}

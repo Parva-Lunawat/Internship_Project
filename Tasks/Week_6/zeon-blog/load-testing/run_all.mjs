@@ -1,6 +1,8 @@
-import { spawn } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+const scriptDir = dirname(fileURLToPath(import.meta.url));
 
 const scenarios = [
   "public_blogs",
@@ -11,26 +13,23 @@ const scenarios = [
   "mixed_traffic",
 ];
 
-const outDir = process.env.OUT_DIR || "bench-results";
+const outDir = resolve(scriptDir, process.env.OUT_DIR || "bench-results");
 mkdirSync(outDir, { recursive: true });
 
 function runScenario(name) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [join("load-testing", "scenarios", `${name}.mjs`)], {
-      stdio: ["ignore", "pipe", "inherit"],
-      env: process.env,
-    });
+  const scenarioPath = join(scriptDir, "scenarios", `${name}.mjs`);
+  const moduleUrl = pathToFileURL(scenarioPath);
+  moduleUrl.searchParams.set("run", `${Date.now()}-${name}`);
 
-    let stdout = "";
-    child.stdout.on("data", (d) => (stdout += d.toString("utf8")));
+  const previousOutfile = process.env.OUTFILE;
+  process.env.OUTFILE = join(outDir, `${name}.json`);
 
-    child.on("close", (code) => {
-      if (code !== 0) return reject(new Error(`${name} exited with code ${code}`));
-      const line = stdout.trim().split("\n").pop();
-      if (!line) return reject(new Error(`${name} produced no output`));
-      writeFileSync(join(outDir, `${name}.json`), `${line}\n`, "utf8");
-      resolve();
-    });
+  return import(moduleUrl.href).finally(() => {
+    if (typeof previousOutfile === "string") {
+      process.env.OUTFILE = previousOutfile;
+    } else {
+      delete process.env.OUTFILE;
+    }
   });
 }
 

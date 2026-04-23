@@ -65,9 +65,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 
     res.status(statusCode).json({
-      statusCode,
-      message,
-      category: errorCategory,
       error: {
         statusCode,
         category: errorCategory,

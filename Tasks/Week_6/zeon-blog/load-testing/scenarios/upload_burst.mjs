@@ -55,7 +55,7 @@ await runScenario({
       body: form,
     });
     const payload = await readJsonSafe(res);
-    const ok = res.ok && Boolean(payload?.data?.url);
+    const ok = res.ok && Boolean(payload?.url || payload?.data?.url);
     return { ok, durationMs };
   },
 });
