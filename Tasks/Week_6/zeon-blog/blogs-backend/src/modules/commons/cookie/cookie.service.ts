@@ -12,9 +12,7 @@ export type CurrentUser = {
 };
 @Injectable()
 export class CookieService {
-  constructor(
-    private readonly jwtService: JwtService,
-  ) { }
+  constructor(private readonly jwtService: JwtService) {}
 
   async setNewCookie(user: User, response: Response) {
     const payload = {
@@ -23,7 +21,7 @@ export class CookieService {
       role: user.role,
     };
     const expires = new Date();
-    expires.setMilliseconds(expires.getMilliseconds() + 1000000000)
+    expires.setMilliseconds(expires.getMilliseconds() + 1000000000);
 
     const accessToken = this.jwtService.sign(payload);
 
@@ -36,5 +34,5 @@ export class CookieService {
         role: user.role,
       },
     };
-  } 
+  }
 }

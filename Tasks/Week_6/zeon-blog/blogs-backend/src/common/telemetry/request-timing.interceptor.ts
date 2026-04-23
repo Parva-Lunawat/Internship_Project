@@ -33,7 +33,8 @@ function normalizeRoute(req: Request, statusCode: number): string {
 
 @Injectable()
 export class RequestTimingInterceptor implements NestInterceptor {
-  private readonly shouldLogRequests = process.env.BENCHMARK_REQUEST_LOGS === '1';
+  private readonly shouldLogRequests =
+    process.env.BENCHMARK_REQUEST_LOGS === '1';
 
   constructor(private readonly metrics: MetricsService) {}
 
@@ -68,7 +69,6 @@ export class RequestTimingInterceptor implements NestInterceptor {
 
           this.metrics.recordRequest(metric);
           if (this.shouldLogRequests) {
-            // eslint-disable-next-line no-console
             console.log(JSON.stringify({ type: 'request', ...metric }));
           }
         },
@@ -93,7 +93,6 @@ export class RequestTimingInterceptor implements NestInterceptor {
 
         this.metrics.recordRequest(metric);
         if (this.shouldLogRequests) {
-          // eslint-disable-next-line no-console
           console.log(JSON.stringify({ type: 'request', ...metric }));
         }
 

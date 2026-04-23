@@ -24,9 +24,12 @@ type Aggregate = {
 
 @Injectable()
 export class MetricsService {
-  private readonly slowThresholdMs = Number(process.env.SLOW_THRESHOLD_MS) || 750;
-  private readonly recentLimit = Number(process.env.METRICS_RECENT_LIMIT) || 500;
-  private readonly aggregateKeyLimit = Number(process.env.METRICS_AGGREGATE_LIMIT) || 300;
+  private readonly slowThresholdMs =
+    Number(process.env.SLOW_THRESHOLD_MS) || 750;
+  private readonly recentLimit =
+    Number(process.env.METRICS_RECENT_LIMIT) || 500;
+  private readonly aggregateKeyLimit =
+    Number(process.env.METRICS_AGGREGATE_LIMIT) || 300;
 
   private recent: RequestMetric[] = [];
   private aggregates = new Map<AggregateKey, Aggregate>();
@@ -36,7 +39,9 @@ export class MetricsService {
     if (this.aggregates.has(newKey)) return;
     if (this.aggregates.size < this.aggregateKeyLimit) return;
 
-    const oldestKey = this.aggregates.keys().next().value as AggregateKey | undefined;
+    const oldestKey = this.aggregates.keys().next().value as
+      | AggregateKey
+      | undefined;
     if (oldestKey) {
       this.aggregates.delete(oldestKey);
       this.aggregateOverflowCount += 1;
@@ -76,7 +81,8 @@ export class MetricsService {
     if (isError) existing.errorCount += 1;
     if (isSlow) existing.slowCount += 1;
     if (isError) {
-      existing.categoryCounts[category] = (existing.categoryCounts[category] || 0) + 1;
+      existing.categoryCounts[category] =
+        (existing.categoryCounts[category] || 0) + 1;
     }
   }
 

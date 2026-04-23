@@ -52,7 +52,8 @@ export default function ImageUploadModal({ isOpen, onClose, onUploadSuccess }: I
                 resetAndClose();
             }, 1000);
         } catch (err) {
-            setError("Failed to upload image. Please try again.");
+            const message = err instanceof Error ? err.message : "Failed to upload image. Please try again.";
+            setError(message);
         } finally {
             setUploading(false);
         }

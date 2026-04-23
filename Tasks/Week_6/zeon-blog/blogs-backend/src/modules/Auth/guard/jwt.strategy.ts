@@ -1,15 +1,15 @@
-import { Injectable } from "@nestjs/common";
-import { PassportStrategy } from "@nestjs/passport";
-import { ExtractJwt, Strategy } from "passport-jwt";
-import { ConfigService } from "@nestjs/config";
-import { CurrentUser } from "../types/current-user.type";
-import { Request } from "express";
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { ConfigService } from '@nestjs/config';
+import { CurrentUser } from '../types/current-user.type';
+import { Request } from 'express';
 
 type JwtPayload = {
-    sub: string;
-    email: string;
-    role: string;
-}
+  sub: string;
+  email: string;
+  role: string;
+};
 
 const cookieExtractor = (req: Request): string | null => {
   if (req && req.cookies) {
@@ -19,13 +19,11 @@ const cookieExtractor = (req: Request): string | null => {
 };
 
 // Tells how to extract and convert into usable object for verification
-@Injectable() 
+@Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(configService: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        cookieExtractor
-      ]),
+      jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
       ignoreExpiration: false,
       secretOrKey: configService.get<string>('JWT_SECRET') || 'dev-secret',
     });

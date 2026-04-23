@@ -1,5 +1,14 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsEmail, IsOptional, IsString, IsUrl, MaxLength, MinLength, IsNotEmpty } from 'class-validator';
+import {
+  IsEnum,
+  IsEmail,
+  IsOptional,
+  IsString,
+  IsUrl,
+  MaxLength,
+  MinLength,
+  IsNotEmpty,
+} from 'class-validator';
 import { UserRole } from '../entities/user.entities';
 
 export class UpdateUserProfileDto {
@@ -23,7 +32,7 @@ export class UpdateUserProfileDto {
   avatar?: string;
 
   @ApiPropertyOptional({
-    example: "demo@demo.com",
+    example: 'demo@demo.com',
     description: 'Email of the user',
   })
   @IsNotEmpty({ message: 'Email address is required' })

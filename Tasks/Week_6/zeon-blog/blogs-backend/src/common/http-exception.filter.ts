@@ -60,11 +60,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
               }
             : String(exception),
       };
-      // eslint-disable-next-line no-console
+
       console.error(JSON.stringify(logPayload));
     }
 
     res.status(statusCode).json({
+      statusCode,
+      message,
+      category: errorCategory,
       error: {
         statusCode,
         category: errorCategory,
