@@ -1,0 +1,1 @@
+{"scenario":"public_blogs","startedAt":"2026-04-10T04:13:33.675Z","endedAt":"2026-04-10T04:14:03.688Z","baseUrl":"http://localhost:5000/api/v1","requests":9671,"errors":0,"errorRate":0,"latencyMs":{"min":14.91570000000138,"max":187.3769,"avg":30.90792529211046,"p50":30.234199999998964,"p95":47.01960000000054,"p99":67.38179999999988},"throughput":{"rps":322.227034951521}}
