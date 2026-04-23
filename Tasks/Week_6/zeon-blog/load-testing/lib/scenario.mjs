@@ -11,7 +11,7 @@ export async function runScenario({ scenario, baseUrl, worker, setup }) {
   let totalRequests = 0;
 
   const ctx = {
-    baseUrl: baseUrl || getEnvString("BASE_URL", "http://localhost:3000/api/v1"),
+    baseUrl: baseUrl || getEnvString("BASE_URL", "http://localhost:5000/api/v1"),
   };
 
   if (setup) {

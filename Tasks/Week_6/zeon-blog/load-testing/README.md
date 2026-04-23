@@ -10,7 +10,7 @@ This folder is intentionally outside runtime application code. It provides repea
 
 ## Common Environment Variables
 
-- `BASE_URL` (default: `http://localhost:3000/api/v1`)
+- `BASE_URL` (default: `http://localhost:5000/api/v1`)
 - `CONCURRENCY` (default: `10`)
 - `DURATION_SEC` (default: `30`)
 - `OUTFILE` (optional: write JSON summary to this path)

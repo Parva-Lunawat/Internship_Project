@@ -59,6 +59,7 @@ await runScenario({
   setup: async (ctx) => {
     ctx.cookie = await authCookie(ctx.baseUrl);
     ctx.counter = 0;
+    ctx.runId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
     ctx.weights = [
       { k: "public_list", w: getEnvNumber("W_PUBLIC_LIST", 45) },
       { k: "detail", w: getEnvNumber("W_DETAIL", 25) },
@@ -80,7 +81,7 @@ await runScenario({
     if (choice === "detail") {
       const list = await timedFetch(`${ctx.baseUrl}/blogs?page=1&pageSize=1`, { method: "GET" });
       const payload = await readJsonSafe(list.res);
-      const pageTitle = payload?.data?.[0]?.pageTitle;
+      const pageTitle = payload?.blogs?.[0]?.pageTitle ?? payload?.data?.[0]?.pageTitle;
       if (!pageTitle) return { ok: false, durationMs: list.durationMs };
       const { res, durationMs } = await timedFetch(`${ctx.baseUrl}/blogs/${encodeURIComponent(pageTitle)}`, {
         method: "GET",
@@ -101,7 +102,7 @@ await runScenario({
 
     if (choice === "write") {
       const i = (ctx.counter += 1);
-      const slug = `bench-mixed-${workerId}-${i}`;
+      const slug = `bench-mixed-${ctx.runId}-${workerId}-${i}`;
       const { res, durationMs } = await timedFetch(`${ctx.baseUrl}/blogs`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Cookie: ctx.cookie },

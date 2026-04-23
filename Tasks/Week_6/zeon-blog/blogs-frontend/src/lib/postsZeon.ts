@@ -41,7 +41,11 @@ const dummyPosts: Array<posts> = [
 
 export function getAllPublishedPosts(): Array<posts> {
     return dummyPosts.filter((p) => p.status === "published")
-        .sort((a, b) => (a.publishedAt < b.publishedAt) ? 1 : -1);
+        .sort((a, b) => {
+            const publishedA = a.publishedAt ?? "";
+            const publishedB = b.publishedAt ?? "";
+            return publishedA < publishedB ? 1 : -1;
+        });
 }
 
 export function getPostsBypageTitle(pageTitle: string): posts | undefined {

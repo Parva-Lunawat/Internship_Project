@@ -15,7 +15,7 @@ export default async function Page({ params }: pageParams) {
 
     return (
         <article className="prose m-10 flex max-w-none flex-col gap-6 dark:prose-invert" >
-            <div className="flex flex-col gap-4 pb-4">
+            <div className="flex flex-col gap-2 pb-2">
                 <h1 className="text-4xl font-bold">{post.title}</h1>
                 <p className="break-words text-lg italic text-gray-700 dark:text-gray-300">{post.excerpt}</p>
             </div>

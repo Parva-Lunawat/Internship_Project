@@ -142,7 +142,7 @@ export class BlogsService {
 
     if (
       previousState === BlogStatus.PUBLISHED &&
-      newState !== BlogStatus.DRAFT
+      newState === BlogStatus.DRAFT
     ) {
       return null;
     }
@@ -158,6 +158,24 @@ export class BlogsService {
     if (blog.author?.id === currentUser.id) return true;
     if (currentUser.role === 'admin') return true;
     return false;
+  }
+  private async findManagedBlogById(
+    blogId: string,
+    currentUser: CurrentUser,
+  ): Promise<Blog> {
+    const blog = await this.blogsRepository.findOne({
+      where: { id: blogId },
+      relations: {
+        author: true,
+        tags: true,
+      },
+    });
+    if (!blog) throw new NotFoundException(`Blog ${blogId} not found.`);
+    if (!this.canManageBlog(blog, currentUser))
+      throw new ForbiddenException(
+        'You are not authorized to perform this action.',
+      );
+    return blog;
   }
 
   // Public APIs
@@ -260,21 +278,7 @@ export class BlogsService {
   }
   // to be checked later
   async getMyBlogsById(blogId: string, currentUser: CurrentUser) {
-    const blog = await this.blogsRepository.findOne({
-      where: {
-        id: blogId,
-        author: { id: currentUser.id },
-      },
-      relations: {
-        author: true,
-        tags: true,
-      },
-    });
-    if (!blog) throw new NotFoundException(`Blog ${blogId} not found.`);
-    if (!this.canManageBlog(blog, currentUser))
-      throw new ForbiddenException(
-        'You are not authorized to perform this action.',
-      );
+    const blog = await this.findManagedBlogById(blogId, currentUser);
     return this.mapBlogResponse(blog);
   }
   async createBlog(dto: CreateBlogDto, currentUser: CurrentUser) {
@@ -301,18 +305,7 @@ export class BlogsService {
     dto: UpdateBlogDto,
     currentUser: CurrentUser,
   ) {
-    const updateBlog = await this.blogsRepository.findOne({
-      where: { id: blogId, author: { id: currentUser.id } },
-      relations: {
-        author: true,
-        tags: true,
-      },
-    });
-    if (!updateBlog) throw new NotFoundException(`Blog ${blogId} not found.`);
-    if (!this.canManageBlog(updateBlog, currentUser))
-      throw new ForbiddenException(
-        'You are not authorized to perform this action.',
-      );
+    const updateBlog = await this.findManagedBlogById(blogId, currentUser);
     if (dto.pageTitle !== undefined) {
       const normalizedPageTitle = this.normalizedPageTitle(dto.pageTitle);
       await this.ensureUniquePageTitle(normalizedPageTitle, updateBlog.id);

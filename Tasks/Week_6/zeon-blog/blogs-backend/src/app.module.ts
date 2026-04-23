@@ -24,6 +24,10 @@ import { TelemetryModule } from './common/telemetry/telemetry.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: [
+        join(process.cwd(), '.env'),
+        join(process.cwd(), 'blogs-backend', '.env'),
+      ],
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
