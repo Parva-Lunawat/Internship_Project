@@ -1,0 +1,1 @@
+{"scenario":"upload_burst","startedAt":"2026-04-10T04:15:34.528Z","endedAt":"2026-04-10T04:16:04.632Z","baseUrl":"http://localhost:5000/api/v1","requests":6119,"errors":0,"errorRate":0,"latencyMs":{"min":15.89429999999993,"max":669.8877999999968,"avg":48.79253992482428,"p50":39.08230000000913,"p95":83.70910000000731,"p99":290.9041000000143},"throughput":{"rps":203.2620249800691}}

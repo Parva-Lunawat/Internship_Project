@@ -72,6 +72,12 @@ export async function getSelf(): Promise<AuthUser> {
 }
 
 export async function logout(): Promise<LogoutResponse> {
-    const res = await apiFetch<{ data: LogoutResponse }>(`${API_BASE_URL}/auth/logout`, { method: 'POST' });
-    return res.data;
+    const res = await apiFetch<{ data?: LogoutResponse; loggedOut?: true }>(`${API_BASE_URL}/auth/logout`, { method: 'POST' });
+    if (res.data?.loggedOut) {
+        return res.data;
+    }
+    if (res.loggedOut) {
+        return { loggedOut: true };
+    }
+    return { loggedOut: true };
 }

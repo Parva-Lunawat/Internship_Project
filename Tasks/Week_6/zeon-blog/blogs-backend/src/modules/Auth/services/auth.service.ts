@@ -66,7 +66,7 @@ export class AuthService {
       passwordHash: passwordHash,
       avatar: null,
       isProfileComplete: false,
-      // role: dto.role ?? UserRole.WRITER,
+      role: UserRole.WRITER,
     });
     const savedUser = await this.userRepository.save(user);
     return this.buildAuthMessage(savedUser);
