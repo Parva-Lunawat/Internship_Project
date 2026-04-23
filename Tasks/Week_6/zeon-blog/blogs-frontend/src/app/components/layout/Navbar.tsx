@@ -7,6 +7,7 @@ import { sessionUser } from "@/src/lib/session";
 import { authLogout } from "../../Redux/actions/authActions";
 import { clearSession } from "@/src/lib/session";
 import ThemeToggle from "./ThemeToggle";
+import { logout as apiLogout } from "@/src/lib/api/authApi";
 
 
 export default function Navbar() {
@@ -15,9 +16,15 @@ export default function Navbar() {
   const hydrated: boolean = useAppSelector(selectAuthHydrated);
   const name = user?.name;
   
-  function onLogout() {
-    clearSession();
-    dispatch(authLogout());
+  async function onLogout() {
+    try {
+      await apiLogout();
+    } catch (error) {
+      console.error("Logout API failed, clearing local session fallback.", error);
+    } finally {
+      clearSession();
+      dispatch(authLogout());
+    }
   }
   
   return (
@@ -37,7 +44,7 @@ export default function Navbar() {
             <div className="flex items-center gap-6">
               <Link href="/write" className="rounded-xl border-2 border-gray-200 bg-white px-3 py-1 text-center transition-all hover:bg-gray-50 dark:border-gray-700 dark:bg-slate-900 dark:hover:bg-slate-800">Write a Blog</Link>
               <Link href="/dashboard" className="rounded-xl border-2 border-gray-900 bg-gray-900 px-3 py-1 text-center text-white transition-all hover:opacity-80 dark:border-sky-400 dark:bg-sky-500 dark:text-slate-950">{name}</Link>
-              <button onClick={onLogout} className="cursor-pointer rounded-xl border-2 border-gray-200 bg-white px-3 py-1 text-center transition-all hover:bg-gray-50 dark:border-gray-700 dark:bg-slate-900 dark:hover:bg-slate-800">Logout</button>
+              <button onClick={() => void onLogout()} className="cursor-pointer rounded-xl border-2 border-gray-200 bg-white px-3 py-1 text-center transition-all hover:bg-gray-50 dark:border-gray-700 dark:bg-slate-900 dark:hover:bg-slate-800">Logout</button>
             </div>
           )}
           <ThemeToggle />

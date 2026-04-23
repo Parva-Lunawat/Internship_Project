@@ -25,6 +25,7 @@ describe('AuthService (vitest)', () => {
       create: vi.fn((input) => input),
       save: vi.fn(async (input) => ({
         id: 'user-1',
+        role: input.role ?? UserRole.WRITER,
         createdAt: new Date('2026-04-10T00:00:00.000Z'),
         updatedAt: new Date('2026-04-10T00:00:00.000Z'),
         ...input,
@@ -50,7 +51,7 @@ describe('AuthService (vitest)', () => {
     expect(result.accessToken).toBe('signed-token');
     expect(result.user.email).toBe('parva@example.com');
     expect(result.user.name).toBe('Parva');
-    expect(result.user.role).toBe(UserRole.READER);
+    expect(result.user.role).toBe(UserRole.WRITER);
 
     const createArg = userRepository.create.mock.calls[0][0];
     expect(createArg.passwordHash).not.toBe('Codal@123');

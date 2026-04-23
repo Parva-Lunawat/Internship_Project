@@ -44,10 +44,11 @@ export class AuthController {
     @Body() dto: SignupDto,
     @Res({ passthrough: true }) res: Response,
   ) {
+    const isProduction = process.env.NODE_ENV === 'production';
     const result = await this.authService.signup(dto);
     res.cookie('access_token', result.accessToken, {
       httpOnly: true,
-      secure: false, // true in production with https
+      secure: isProduction,
       sameSite: 'lax',
       maxAge: 1 * 24 * 60 * 60 * 1000,
     });
@@ -68,10 +69,11 @@ export class AuthController {
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
+    const isProduction = process.env.NODE_ENV === 'production';
     const result = await this.authService.login(dto);
     res.cookie('access_token', result.accessToken, {
       httpOnly: true,
-      secure: false, // true in production with https
+      secure: isProduction,
       sameSite: 'lax',
       maxAge: 1 * 24 * 60 * 60 * 1000,
     });
@@ -105,14 +107,17 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, description: 'Logged out successfully' })
   logout(@Res({ passthrough: true }) res: Response) {
+    const isProduction = process.env.NODE_ENV === 'production';
     res.clearCookie('access_token', {
       httpOnly: true,
-      secure: false, // true in production
+      secure: isProduction,
       sameSite: 'lax',
     });
 
     return {
-      message: 'Logged out successfully',
+      data: {
+        loggedOut: true,
+      },
     };
   }
 }

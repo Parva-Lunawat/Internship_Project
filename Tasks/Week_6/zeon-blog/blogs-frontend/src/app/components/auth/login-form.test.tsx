@@ -56,8 +56,10 @@ describe('LoginForm', () => {
 
     render(<LoginForm />);
 
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
+    const emailInput = screen.getByPlaceholderText('you@example.com');
+    const passwordInput = document.querySelector(
+      'input[type="password"]',
+    ) as HTMLInputElement;
     const submitButton = screen.getByRole('button', { name: 'Log in' });
 
     await userEvent.type(emailInput, 'parva@example.com');
@@ -83,8 +85,13 @@ describe('LoginForm', () => {
 
     render(<LoginForm />);
 
-    await userEvent.type(screen.getByLabelText('Email'), 'parva@example.com');
-    await userEvent.type(screen.getByLabelText('Password'), 'Codal@123');
+    const emailInput = screen.getByPlaceholderText('you@example.com');
+    const passwordInput = document.querySelector(
+      'input[type="password"]',
+    ) as HTMLInputElement;
+
+    await userEvent.type(emailInput, 'parva@example.com');
+    await userEvent.type(passwordInput, 'Codal@123');
     await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
 
     await waitFor(() => {

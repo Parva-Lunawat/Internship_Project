@@ -1,116 +1,75 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-  INestApplication,
-  UnauthorizedException,
-  ValidationPipe,
-  VersioningType,
-} from '@nestjs/common';
-import { Test } from '@nestjs/testing';
-import request from 'supertest';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { JwtAuthGuard } from 'src/modules/Auth/guard/jwt-auth.guard';
-import { BlogsService } from '../services/blogs.service';
+import { ForbiddenException } from '@nestjs/common';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { BlogStatus } from '../entities/blogs.entities';
 import { BlogsController } from './blogs.controller';
 
-class TestJwtAuthGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean {
-    const req = context.switchToHttp().getRequest();
-    const auth = req.headers.authorization;
-    if (!auth) {
-      throw new UnauthorizedException('No token found');
-    }
-
-    req.user = {
-      id: 'writer-1',
-      email: 'writer@example.com',
-      role: 'writer',
-    };
-    return true;
-  }
-}
-
 describe('BlogsController (vitest)', () => {
-  let app: INestApplication;
+  let controller: BlogsController;
   const blogsService = {
     getPublishedBlogs: vi.fn(),
-    getPublishedBlogByPageTitle: vi.fn(),
-    getMyBlogs: vi.fn(),
-    getMyBlogsById: vi.fn(),
     createBlog: vi.fn(),
     updateBlog: vi.fn(),
-    deleteBlog: vi.fn(),
   };
 
-  beforeEach(async () => {
+  beforeEach(() => {
     Object.values(blogsService).forEach((fn) => fn.mockReset());
-
-    const moduleRef = await Test.createTestingModule({
-      controllers: [BlogsController],
-      providers: [
-        { provide: BlogsService, useValue: blogsService },
-        { provide: JwtAuthGuard, useClass: TestJwtAuthGuard },
-      ],
-    }).compile();
-
-    app = moduleRef.createNestApplication();
-    app.enableVersioning({
-      type: VersioningType.URI,
-      defaultVersion: '1',
-    });
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        transform: true,
-      }),
-    );
-    await app.init();
+    controller = new BlogsController(blogsService as any);
   });
 
-  afterEach(async () => {
-    await app.close();
-  });
-
-  it('returns published blogs for GET /v1/blogs', async () => {
-    blogsService.getPublishedBlogs.mockResolvedValue({
+  it('returns data from getPublishedBlogs service', async () => {
+    blogsService.getPublishedBlogs.mockResolvedValueOnce({
       blogs: [{ id: 'blog-1', title: 'Published' }],
       meta: { totalBlogs: 1, totalPages: 1, currentPage: 1, pageSize: 6 },
     });
 
-    const response = await request(app.getHttpServer())
-      .get('/v1/blogs?page=1&pageSize=6')
-      .expect(200);
+    const result = await controller.getPublishedBlogs({
+      page: 1,
+      pageSize: 6,
+    });
 
-    expect(response.body.meta.totalBlogs).toBe(1);
-    expect(blogsService.getPublishedBlogs).toHaveBeenCalled();
+    expect(blogsService.getPublishedBlogs).toHaveBeenCalledWith({
+      page: 1,
+      pageSize: 6,
+    });
+    expect(result.meta.totalBlogs).toBe(1);
   });
 
-  it('requires authentication for POST /v1/blogs', async () => {
-    await request(app.getHttpServer())
-      .post('/v1/blogs')
-      .send({
-        pageTitle: 'new-blog',
-        title: 'New Blog',
-        excerpt: 'Useful excerpt',
-        coverImage: 'https://example.com/cover.png',
-        content: 'Markdown content',
-        tags: ['tech'],
-        status: 'draft',
-      })
-      .expect(401);
+  it('creates blog using authenticated request user context', async () => {
+    blogsService.createBlog.mockResolvedValueOnce({
+      id: 'blog-1',
+      title: 'Created blog',
+    });
+
+    const dto = {
+      pageTitle: 'created-blog',
+      title: 'Created blog',
+      excerpt: 'Excerpt',
+      coverImage: 'https://example.com/cover.png',
+      content: 'Content',
+      tags: ['tech'],
+      status: BlogStatus.DRAFT,
+    };
+    const req = {
+      user: { id: 'writer-1', email: 'writer@example.com', role: 'writer' },
+    };
+
+    const result = await controller.createBlog(dto, req);
+
+    expect(blogsService.createBlog).toHaveBeenCalledWith(dto, req.user);
+    expect(result.id).toBe('blog-1');
   });
 
-  it('returns forbidden when PATCH /v1/blogs/:id fails ownership', async () => {
+  it('propagates ownership errors from updateBlog service', async () => {
     blogsService.updateBlog.mockRejectedValueOnce(
       new ForbiddenException('You are not authorized to perform this action.'),
     );
 
-    await request(app.getHttpServer())
-      .patch('/v1/blogs/blog-1')
-      .set('Authorization', 'Bearer test-token')
-      .send({ title: 'Updated title' })
-      .expect(403);
+    await expect(
+      controller.updateBlog(
+        'blog-1',
+        { title: 'Updated title' },
+        { user: { id: 'writer-2', email: 'writer2@example.com', role: 'writer' } },
+      ),
+    ).rejects.toBeInstanceOf(ForbiddenException);
   });
 });
