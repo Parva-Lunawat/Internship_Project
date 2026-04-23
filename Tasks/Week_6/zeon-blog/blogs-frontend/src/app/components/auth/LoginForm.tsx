@@ -35,8 +35,9 @@ export default function LoginForm() {
     return (
         <form className="space-y-4" onSubmit={onSubmit}>
             <div className="space-y-1">
-                <label className="text-base font-medium">Email</label>
+                <label htmlFor="login-email" className="text-base font-medium">Email</label>
                 <input
+                    id="login-email"
                     value={input.email}
                     onChange={(e) => setInput((prev) => ({ ...prev, email: e.target.value }))}
                     type="email"
@@ -47,8 +48,9 @@ export default function LoginForm() {
             </div>
 
             <div className="space-y-1">
-                <label className="text-base font-medium">Password</label>
+                <label htmlFor="login-password" className="text-base font-medium">Password</label>
                 <input
+                    id="login-password"
                     value={input.password}
                     onChange={(e) => setInput((prev) => ({ ...prev, password: e.target.value }))}
                     type="password"

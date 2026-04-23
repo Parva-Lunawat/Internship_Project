@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class UploadService {
   private readonly uploadPath = join(process.cwd(), 'lib', 'store');
+  // Contract: uploads accept raster image MIME types only.
+  // See docs/testing/upload-api-contract-checklist.md for compatibility notes.
   private readonly allowedMimeTypes = new Set([
     'image/jpeg',
     'image/jpg',
@@ -35,6 +37,7 @@ export class UploadService {
       throw new BadRequestException('Only image uploads are supported');
     }
     if (!this.allowedMimeTypes.has(file.mimetype.toLowerCase())) {
+      // Message kept stable for frontend toast/error parsing.
       throw new BadRequestException('Unsupported image file type');
     }
 
