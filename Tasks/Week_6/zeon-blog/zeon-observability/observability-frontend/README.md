@@ -1,12 +1,24 @@
 # Observability Frontend
 
-## Environment
+## Purpose
+This package implements the operator dashboard for Zeon Observability.
 
-- `NEXT_PUBLIC_MAIN_API_BASE_URL` (default: `http://localhost:5000/api/v1`)
-- `NEXT_PUBLIC_OBS_API_BASE_URL` (default: `http://localhost:5100/api/v1`)
-- `NEXT_PUBLIC_OBS_POLL_MS` (default: `5000`)
+## What Lives Here
+- Dashboard shell, global filters, refresh controls, and theme provider.
+- Pages for overview, metrics, logs, events, traces, correlation, issues, and issue details.
+- Shared data table and filter components.
+- Client API helpers that map backend failures to user-safe messages.
+- Tests for frontend auth and client behavior.
 
-## Routes
+## Navigation
+- Start with the dashboard layout and shell to understand shared navigation.
+- Use the filter component to understand endpoint, duration, interval, and refresh state.
+- Use page folders to inspect individual dashboard surfaces.
+- Use the API helper for backend request behavior and generic error mapping.
 
-- `/login` for admin authentication via main backend
-- `/metrics`, `/logs`, `/events`, `/traces`, `/correlation`
+## Safe Setup Notes
+Runtime endpoints and private access material should be configured outside committed markdown. Public docs should describe behavior and navigation, not concrete values.
+
+## Validation
+Run the frontend build and tests after dashboard, theme, filter, polling, or API-client changes. Smoke-test theme switching and bucket interactions after UI edits.
+
