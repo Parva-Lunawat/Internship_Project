@@ -154,4 +154,13 @@ describe('CommentsService', () => {
 
     await expect(service.create('blog-1', { content: 'Too much' }, { id: 'user-1', email: 'a@b.com', role: 'writer' })).rejects.toBeInstanceOf(BadRequestException);
   });
+
+  it('prunes stale comment creation limiter entries', async () => {
+    const { service } = buildService();
+    (service as any).createAttempts.set('stale-user:blog-1', [Date.now() - 120_000]);
+
+    await service.create('blog-1', { content: 'Fresh comment' }, { id: 'user-1', email: 'a@b.com', role: 'writer' });
+
+    expect((service as any).createAttempts.has('stale-user:blog-1')).toBe(false);
+  });
 });

@@ -68,6 +68,14 @@ export class CommentsService {
     return comment.userId === currentUser.id || currentUser.role === UserRole.ADMIN || currentUser.role === 'admin';
   }
 
+  private pruneCreateAttempts(now: number) {
+    for (const [key, timestamps] of this.createAttempts.entries()) {
+      const recent = timestamps.filter((timestamp) => now - timestamp < this.createWindowMs);
+      if (recent.length === 0) this.createAttempts.delete(key);
+      else this.createAttempts.set(key, recent);
+    }
+  }
+
   private async getBlog(blogId: string) {
     const blog = await this.blogsRepository.findOne({
       where: { id: blogId },
@@ -96,6 +104,7 @@ export class CommentsService {
   private assertCreateRateLimit(userId: string, blogId: string) {
     const now = Date.now();
     const key = `${userId}:${blogId}`;
+    this.pruneCreateAttempts(now);
     const recent = (this.createAttempts.get(key) ?? []).filter((timestamp) => now - timestamp < this.createWindowMs);
     if (recent.length >= this.createLimit) {
       this.emit('comment_validation_failure', {
