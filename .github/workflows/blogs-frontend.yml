@@ -1,14 +1,24 @@
-name: Zeon Frontend Tests
+name: Blogs Frontend
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
-      - 'Tasks/Week_6/zeon-blog/blogs-frontend/**'
-      - '.github/workflows/zeon-frontend-test.yml'
+      - "Tasks/Week_6/zeon-blog/blogs-frontend/**"
+      - ".github/workflows/blogs-frontend.yml"
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - "Tasks/Week_6/zeon-blog/blogs-frontend/**"
+      - ".github/workflows/blogs-frontend.yml"
 
 jobs:
-  frontend-tests:
+  validate:
+    name: Test and build
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: Tasks/Week_6/zeon-blog/blogs-frontend
@@ -17,15 +27,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: Tasks/Week_6/zeon-blog/blogs-frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run frontend tests
+      - name: Run unit tests
         run: npm run test
+
+      - name: Build
+        run: npm run build

@@ -1,10 +1,11 @@
-﻿const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1';
 
 export type CommentAuthor = {
   id: string;
   name: string;
   avatar: string | null;
   role: string;
+  roleLabel?: string | null;
 };
 
 export type BlogComment = {
@@ -13,6 +14,10 @@ export type BlogComment = {
   parentCommentId: string | null;
   content: string;
   isDeleted: boolean;
+  moderationStatus?: 'visible' | 'review' | 'hidden';
+  isPostAuthor?: boolean;
+  isAdmin?: boolean;
+  roleLabel?: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -37,6 +42,15 @@ function extractErrorMessage(errorData: unknown): string | null {
   return typeof candidate === 'string' ? candidate : null;
 }
 
+function friendlyCommentError(status: number, message: string): string {
+  if (status === 401) return 'Please sign in before changing comments.';
+  if (status === 403) return 'You do not have permission to change this comment.';
+  if (status === 404) return 'That comment is no longer available.';
+  if (status === 400 && message && !/^Cannot\s+/i.test(message)) return message;
+  if (status >= 500) return 'Comments are temporarily unavailable. Please try again shortly.';
+  return 'Unable to complete the comment action. Please try again.';
+}
+
 async function parseResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     let message = `Request failed with status ${response.status}`;
@@ -45,7 +59,7 @@ async function parseResponse<T>(response: Response): Promise<T> {
     } catch {
       // keep fallback
     }
-    throw new Error(message);
+    throw new Error(friendlyCommentError(response.status, message));
   }
   return response.json() as Promise<T>;
 }

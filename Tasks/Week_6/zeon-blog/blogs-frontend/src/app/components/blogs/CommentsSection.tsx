@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 
 import { useAppSelector } from "@/src/app/Redux/customStoreWrapper";
 import { selectAuthUser } from "@/src/app/Redux/selector-functions/authSelector";
+import { UserAvatar } from "@/src/app/components/commons/UserAvatar";
 import {
   BlogComment,
   createComment,
@@ -13,11 +14,9 @@ import {
   getComments,
   updateComment,
 } from "@/src/lib/api/commentsApi";
-import { resolveImageUrl } from "@/src/lib/utils/urlUtils";
 
 export function CommentsSection({
   blogId,
-  authorId,
 }: {
   blogId: string;
   authorId: string;
@@ -58,7 +57,7 @@ export function CommentsSection({
           setTotalPages(payload.meta.totalPages || 1);
         }
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Failed to load comments");
+        toast.error(err instanceof Error ? err.message : "Unable to load comments.");
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -78,7 +77,7 @@ export function CommentsSection({
       setPage(payload.meta.currentPage);
       setTotalPages(payload.meta.totalPages || 1);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load more comments");
+      toast.error(err instanceof Error ? err.message : "Unable to load more comments.");
     } finally {
       setIsLoading(false);
     }
@@ -98,7 +97,7 @@ export function CommentsSection({
       setContent("");
       toast.success("Comment posted.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to post comment");
+      toast.error(err instanceof Error ? err.message : "Unable to post comment.");
     } finally {
       setIsSaving(false);
     }
@@ -118,7 +117,7 @@ export function CommentsSection({
       setEditingContent("");
       toast.success("Comment updated.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update comment");
+      toast.error(err instanceof Error ? err.message : "Unable to update comment.");
     } finally {
       setIsSaving(false);
     }
@@ -131,7 +130,7 @@ export function CommentsSection({
       setComments((prev) => prev.map((comment) => comment.id === commentId ? { ...comment, isDeleted: true, content: "[deleted]", deletedAt: new Date().toISOString() } : comment));
       toast.success("Comment deleted.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete comment");
+      toast.error(err instanceof Error ? err.message : "Unable to delete comment.");
     } finally {
       setIsSaving(false);
     }
@@ -140,15 +139,16 @@ export function CommentsSection({
   const canManage = (comment: BlogComment) => Boolean(user && !comment.isDeleted && (user.id === comment.author?.id || user.role === "admin"));
   const roleBadges = (comment: BlogComment) => {
     const badges: string[] = [];
-    if (comment.author?.id === authorId) badges.push("Author");
-    if (comment.author?.role === "admin") badges.push("Admin");
+    if (comment.isPostAuthor) badges.push("Author");
+    if (comment.isAdmin) badges.push("Admin");
+    if (!comment.isPostAuthor && !comment.isAdmin && comment.roleLabel) badges.push(comment.roleLabel);
     return badges;
   };
 
   const renderComment = (comment: BlogComment, isReply = false) => (
     <div key={comment.id} className={`rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-950 ${isReply ? "ml-8" : ""}`}>
       <div className="flex items-start gap-3">
-        <img src={resolveImageUrl(comment.author?.avatar ?? null)} alt="" className="h-10 w-10 rounded-full object-cover" />
+        <UserAvatar src={comment.author?.avatar ?? null} name={comment.author?.name} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2">

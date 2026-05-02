@@ -49,7 +49,7 @@ export default function OverviewPage() {
       <div className="obs-card">
         <h2 style={{ marginTop: 0 }}>Zeon Observability Overview</h2>
         <p className="obs-muted">
-          New Relic-style MELT dashboard with endpoint-first filtering, bucket drill-downs, and Sentry-style incident triage.
+          Current System Health Overview: Incoming requests, Latency, Errors, Throughput 
           {isLoading ? " Refreshing silently..." : ""}
         </p>
       </div>

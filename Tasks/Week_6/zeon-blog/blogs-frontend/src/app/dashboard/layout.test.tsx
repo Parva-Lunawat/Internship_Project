@@ -5,6 +5,13 @@ import DashboardLayout from './layout';
 const pushMock = vi.fn();
 const useAppSelectorMock = vi.fn();
 
+type DashboardAuthState = {
+  auth: {
+    user: { name: string; role: string } | null;
+    hydrated: boolean;
+  };
+};
+
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: pushMock,
@@ -33,7 +40,7 @@ describe('DashboardLayout', () => {
       },
     };
 
-    useAppSelectorMock.mockImplementation((selector: (state: any) => any) =>
+    useAppSelectorMock.mockImplementation((selector: (state: DashboardAuthState) => unknown) =>
       selector(state),
     );
 
@@ -60,7 +67,7 @@ describe('DashboardLayout', () => {
       },
     };
 
-    useAppSelectorMock.mockImplementation((selector: (state: any) => any) =>
+    useAppSelectorMock.mockImplementation((selector: (state: DashboardAuthState) => unknown) =>
       selector(state),
     );
 

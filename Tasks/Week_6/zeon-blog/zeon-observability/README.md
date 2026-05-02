@@ -1,19 +1,19 @@
-# Zeon Observability Workspace
+# Zeon Observability
 
-This workspace contains:
+## Purpose
+This workspace contains the standalone observability product for Zeon.
 
-- `observability-backend` (NestJS ingestion + query + diagnostics APIs)
-- `observability-frontend` (Next.js live MELT dashboard)
+## Workspace Map
+- `observability-backend/`: NestJS backend for telemetry ingestion, query APIs, route catalog, buckets, issues, service map, retention diagnostics, and access boundaries.
+- `observability-frontend/`: Next.js dashboard for summary cards, endpoint filtering, buckets, logs, events, traces, issues, service flow, refresh controls, and theme switching.
 
-## Quick Start
+## Data Model
+Observability behavior is built around metrics, events, logs, and traces. Shared request and trace identity fields allow operators to correlate dashboard cards, raw requests, logs, events, traces, and grouped issues.
 
-1. Configure `.env` for backend DB + JWT secrets.
-2. Start observability backend on `:5100`.
-3. Start observability frontend on `:5180`.
-4. Set blogs-backend forwarding env values and run blogs-backend.
+## Navigation
+- Start in the backend query module for dashboard and bucket behavior.
+- Start in the frontend dashboard shell for filters, refresh behavior, and shared layout.
+- Use telemetry entities and DTOs to understand the persistence and ingestion contract.
 
-## Required Backend Env
-
-- `OBS_DB_HOST`, `OBS_DB_PORT`, `OBS_DB_USERNAME`, `OBS_DB_PASSWORD`, `OBS_DB_NAME`
-- `OBS_JWT_SECRET`
-- `JWT_SECRET` (main backend token verification for admin dashboard)
+## Safe Setup Notes
+Keep runtime values, private access material, and concrete service targets out of committed markdown. Store operational configuration in local or deployment-specific systems.

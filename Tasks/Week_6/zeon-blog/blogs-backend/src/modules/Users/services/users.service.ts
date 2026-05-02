@@ -1,6 +1,5 @@
 import {
   ForbiddenException,
-  BadRequestException,
   NotFoundException,
   Injectable,
 } from '@nestjs/common';
@@ -63,6 +62,10 @@ export class UsersService {
     };
   }
 
+  private isAdmin(currentUser: CurrentUser): boolean {
+    return currentUser.role === String(UserRole.ADMIN);
+  }
+
   // APIs
   async getCurrentUserProfile(currentUser: CurrentUser) {
     const user = await this.userRepository.findOne({
@@ -85,7 +88,7 @@ export class UsersService {
     if (dto.avatar !== undefined) user.avatar = dto.avatar?.trim();
     if (dto.email) user.email = dto.email.trim();
     if (dto.role !== undefined) {
-      if (currentUser.role !== UserRole.ADMIN)
+      if (!this.isAdmin(currentUser))
         throw new ForbiddenException('Only Admin can update user role');
       user.role = dto.role;
     }
@@ -101,7 +104,7 @@ export class UsersService {
     return this.sanitizePublicUser(user);
   }
   async getAllUsers(queryDto: QueryUsersDto, currentUser: CurrentUser) {
-    if (currentUser.role !== UserRole.ADMIN)
+    if (!this.isAdmin(currentUser))
       throw new ForbiddenException('Only Admin can get all users');
     const page = this.normalizePage(queryDto.page);
     const pageSize = this.normalizePageSize(queryDto.pageSize);
@@ -133,7 +136,7 @@ export class UsersService {
       where: { id: id },
     });
     if (!user) throw new NotFoundException('User Not Found');
-    if (currentUser.role !== UserRole.ADMIN)
+    if (!this.isAdmin(currentUser))
       throw new ForbiddenException('Only Admin can delete user');
     await this.userRepository.remove(user);
     return { deleted: true, id: id };

@@ -23,7 +23,9 @@ vi.mock('@/src/lib/api/blogsApi', () => ({
 }));
 
 vi.mock('next/link', () => ({
-  default: (props: any) => <a href={props.href}>{props.children}</a>,
+  default: (props: { href: string; children: React.ReactNode }) => (
+    <a href={props.href}>{props.children}</a>
+  ),
 }));
 
 describe('MyBlogsPage', () => {

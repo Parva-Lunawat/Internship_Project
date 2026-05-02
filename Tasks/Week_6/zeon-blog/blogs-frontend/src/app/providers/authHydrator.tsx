@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../Redux/customStoreWrapper";
 import { authHydration, authLogout } from "../Redux/actions/authActions";
-import { getSession, clearSession } from "@/src/lib/session";
+import { clearSession } from "@/src/lib/session";
 
 export default function AuthHydrator() {
     const dispatch = useAppDispatch();
