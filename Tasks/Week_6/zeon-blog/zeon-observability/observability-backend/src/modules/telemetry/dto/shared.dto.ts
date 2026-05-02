@@ -71,11 +71,11 @@ export class TelemetryBaseDto {
 export class MetricIngestDto extends TelemetryBaseDto {
   @IsNumber()
   @Min(100)
-  statusCode!: number;
+  declare statusCode: number;
 
   @IsNumber()
   @Min(0)
-  latencyMs!: number;
+  declare latencyMs: number;
 }
 
 export class LogIngestDto extends TelemetryBaseDto {
@@ -99,5 +99,5 @@ export class TraceIngestDto extends TelemetryBaseDto {
   @IsString()
   @MaxLength(128)
   @Matches(SAFE_ID_PATTERN)
-  traceId!: string;
+  declare traceId: string;
 }

@@ -117,10 +117,10 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
 
     const started = performance.now();
     const chunk = this.queue.splice(0, this.flushBatchSize);
-    const metrics: MetricEntity[] = [];
-    const logs: LogEntity[] = [];
-    const events: EventEntity[] = [];
-    const traces: TraceEntity[] = [];
+    const metrics: Partial<MetricEntity>[] = [];
+    const logs: Partial<LogEntity>[] = [];
+    const events: Partial<EventEntity>[] = [];
+    const traces: Partial<TraceEntity>[] = [];
 
     for (const entry of chunk) {
       if (entry.type === 'metrics') {
@@ -131,7 +131,7 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
           userId: entry.item.userId ?? null,
           payload: entry.item.payload ?? null,
           timestamp: this.toDate(entry.item.timestamp),
-        } as MetricEntity);
+        });
       } else if (entry.type === 'logs') {
         logs.push({
           ...entry.item,
@@ -143,7 +143,7 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
           statusCode: entry.item.statusCode ?? null,
           latencyMs: entry.item.latencyMs ?? null,
           timestamp: this.toDate(entry.item.timestamp),
-        } as LogEntity);
+        });
       } else if (entry.type === 'events') {
         events.push({
           ...entry.item,
@@ -154,7 +154,7 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
           statusCode: entry.item.statusCode ?? null,
           latencyMs: entry.item.latencyMs ?? null,
           timestamp: this.toDate(entry.item.timestamp),
-        } as EventEntity);
+        });
       } else if (entry.type === 'traces') {
         traces.push({
           ...entry.item,
@@ -164,16 +164,16 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
           statusCode: entry.item.statusCode ?? null,
           latencyMs: entry.item.latencyMs ?? null,
           timestamp: this.toDate(entry.item.timestamp),
-        } as TraceEntity);
+        });
       }
     }
 
     try {
       await Promise.all([
-        metrics.length ? this.metricsRepo.insert(metrics) : Promise.resolve(),
-        logs.length ? this.logsRepo.insert(logs) : Promise.resolve(),
-        events.length ? this.eventsRepo.insert(events) : Promise.resolve(),
-        traces.length ? this.tracesRepo.insert(traces) : Promise.resolve(),
+        metrics.length ? this.metricsRepo.save(metrics) : Promise.resolve(),
+        logs.length ? this.logsRepo.save(logs) : Promise.resolve(),
+        events.length ? this.eventsRepo.save(events) : Promise.resolve(),
+        traces.length ? this.tracesRepo.save(traces) : Promise.resolve(),
       ]);
       this.persisted += chunk.length;
     } catch {

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { AppController } from './app.controller';
 import { AuthModule } from './common/auth/auth.module';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import { IngestionModule } from './modules/ingestion/ingestion.module';
@@ -37,6 +38,7 @@ import { DiagnosticsModule } from './modules/diagnostics/diagnostics.module';
     CorrelationModule,
     DiagnosticsModule,
   ],
+  controllers: [AppController],
   providers: [HttpExceptionFilter],
 })
 export class AppModule {}

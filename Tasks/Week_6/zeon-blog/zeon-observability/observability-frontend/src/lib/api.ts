@@ -53,7 +53,11 @@ export async function fetchObservability<T>(
   token: string,
   path: string,
 ): Promise<T> {
-  const response = await fetch(`${OBS_API_BASE_URL}${path}`, {
+  const base = OBS_API_BASE_URL.replace(/\/+$/, "");
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const url = `${base}${normalizedPath}`;
+
+  const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

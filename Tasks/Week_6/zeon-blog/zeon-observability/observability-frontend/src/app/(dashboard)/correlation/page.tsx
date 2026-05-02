@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import { fetchObservability } from "@/src/lib/api";
 import { useRequireAdmin } from "@/src/lib/useRequireAdmin";
@@ -20,14 +21,18 @@ export default function CorrelationPage() {
   const [requestId, setRequestId] = useState("");
   const [traceId, setTraceId] = useState("");
   const [data, setData] = useState<CorrelationPayload | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (ready && !token) {
+      toast.error("Authentication required. Please sign in as admin.");
+    }
+  }, [ready, token]);
 
   const lookup = async (mode: "request" | "trace") => {
     if (!token) return;
     const value = mode === "request" ? requestId.trim() : traceId.trim();
     if (!value) return;
-    setError(null);
     setIsLoading(true);
     try {
       const payload = await fetchObservability<CorrelationPayload>(
@@ -37,7 +42,9 @@ export default function CorrelationPage() {
       setData(payload);
     } catch (err) {
       setData(null);
-      setError(err instanceof Error ? err.message : "Correlation lookup failed");
+      toast.error(
+        err instanceof Error ? err.message : "Correlation lookup failed",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -81,7 +88,6 @@ export default function CorrelationPage() {
       </div>
 
       {isLoading ? <p className="obs-muted">Loading correlation payload...</p> : null}
-      {error ? <p className="obs-danger">{error}</p> : null}
 
       {data ? (
         <div className="obs-card" style={{ marginTop: 16 }}>

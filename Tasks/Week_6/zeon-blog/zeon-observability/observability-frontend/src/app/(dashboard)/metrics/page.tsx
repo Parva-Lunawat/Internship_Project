@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { DataTable } from "@/src/components/DataTable";
 import { fetchObservability } from "@/src/lib/api";
 import { OBS_POLL_INTERVAL_MS } from "@/src/lib/config";
 import { usePolling } from "@/src/lib/usePolling";
 import { useRequireAdmin } from "@/src/lib/useRequireAdmin";
+import { toast } from "react-toastify";
 
 type MetricAggregateRow = {
   bucket: string;
@@ -45,6 +46,9 @@ export default function MetricsPage() {
     OBS_POLL_INTERVAL_MS,
     loader,
   );
+  useEffect(() => {
+    if (error) toast.error(error);
+  }, [error]);
   const rows = data?.data ?? [];
 
   return (
@@ -86,7 +90,6 @@ export default function MetricsPage() {
         </select>
       </div>
 
-      {error ? <p className="obs-danger">{error}</p> : null}
       {isLoading ? <p className="obs-muted">Refreshing metrics...</p> : null}
 
       <DataTable

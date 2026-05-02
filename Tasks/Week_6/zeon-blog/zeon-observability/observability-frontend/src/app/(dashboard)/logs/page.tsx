@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { DataTable } from "@/src/components/DataTable";
 import { fetchObservability } from "@/src/lib/api";
 import { OBS_POLL_INTERVAL_MS } from "@/src/lib/config";
 import { usePolling } from "@/src/lib/usePolling";
 import { useRequireAdmin } from "@/src/lib/useRequireAdmin";
+import { toast } from "react-toastify";
 
 type LogRow = {
   timestamp: string;
@@ -53,6 +54,9 @@ export default function LogsPage() {
     OBS_POLL_INTERVAL_MS,
     loader,
   );
+  useEffect(() => {
+    if (error) toast.error(error);
+  }, [error]);
 
   return (
     <section className="obs-card">
@@ -82,7 +86,6 @@ export default function LogsPage() {
         />
       </div>
 
-      {error ? <p className="obs-danger">{error}</p> : null}
       {isLoading ? <p className="obs-muted">Refreshing logs...</p> : null}
 
       <DataTable

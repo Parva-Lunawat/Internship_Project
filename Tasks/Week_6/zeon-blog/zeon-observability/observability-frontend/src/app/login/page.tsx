@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 import { saveToken } from "@/src/lib/auth";
 import { loginMainBackend } from "@/src/lib/api";
@@ -10,13 +11,11 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
-    setError(null);
 
     try {
       const result = await loginMainBackend({ email, password });
@@ -26,7 +25,7 @@ export default function LoginPage() {
       saveToken(result.data.accessToken);
       router.replace("/metrics");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      toast.error(err instanceof Error ? err.message : "Login failed");
     } finally {
       setIsLoading(false);
     }
@@ -70,12 +69,6 @@ export default function LoginPage() {
             {isLoading ? "Signing in..." : "Sign in"}
           </button>
         </div>
-
-        {error ? (
-          <p className="obs-danger" style={{ marginBottom: 0 }}>
-            {error}
-          </p>
-        ) : null}
       </form>
     </main>
   );

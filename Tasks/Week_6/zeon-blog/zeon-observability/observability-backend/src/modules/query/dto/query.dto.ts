@@ -1,5 +1,6 @@
 import { Transform, Type } from 'class-transformer';
 import {
+  Allow,
   IsIn,
   IsInt,
   IsISO8601,
@@ -50,6 +51,7 @@ export class MetricsAggregateQueryDto extends TimeRangeDto {
   method?: string;
 
   @IsOptional()
+  @Allow()
   @IsString()
   @IsIn(['minute', 'hour', 'day'])
   groupBy?: 'minute' | 'hour' | 'day' = 'hour';
