@@ -1,0 +1,17 @@
+{
+  "name": "zeon-observability",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "observability-backend",
+    "observability-frontend"
+  ],
+  "scripts": {
+    "dev:backend": "npm --workspace observability-backend run start:dev",
+    "dev:frontend": "npm --workspace observability-frontend run dev",
+    "build:backend": "npm --workspace observability-backend run build",
+    "build:frontend": "npm --workspace observability-frontend run build",
+    "test:backend": "npm --workspace observability-backend run test:vitest",
+    "test:frontend": "npm --workspace observability-frontend run test"
+  }
+}

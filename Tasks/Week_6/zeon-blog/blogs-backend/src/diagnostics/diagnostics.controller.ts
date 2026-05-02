@@ -14,6 +14,7 @@ import {
 import { JwtAuthGuard } from '../modules/Auth/guard/jwt-auth.guard';
 import type { CurrentUser } from '../modules/Auth/types/current-user.type';
 import { MetricsService } from '../common/telemetry/metrics.service';
+import { ObservabilityForwarderService } from '../common/telemetry/observability-forwarder.service';
 
 @ApiTags('Diagnostics')
 @Controller({
@@ -21,7 +22,10 @@ import { MetricsService } from '../common/telemetry/metrics.service';
   version: '1',
 })
 export class DiagnosticsController {
-  constructor(private readonly metrics: MetricsService) {}
+  constructor(
+    private readonly metrics: MetricsService,
+    private readonly forwarder: ObservabilityForwarderService,
+  ) {}
 
   private assertAdmin(user: CurrentUser) {
     if (user.role !== 'admin') throw new ForbiddenException('Admin only');
@@ -56,7 +60,10 @@ export class DiagnosticsController {
   async metricsSnapshot(@Req() req: { user: CurrentUser }) {
     this.assertAdmin(req.user);
     return {
-      data: this.metrics.snapshot(),
+      data: {
+        metrics: this.metrics.snapshot(),
+        forwarding: this.forwarder.getStats(),
+      },
     };
   }
 }

@@ -8,6 +8,7 @@ import {
 import { Observable, catchError, tap, throwError } from 'rxjs';
 import type { Request, Response } from 'express';
 import { MetricsService } from './metrics.service';
+import { ObservabilityForwarderService } from './observability-forwarder.service';
 
 function classifyByStatus(statusCode: number): string {
   if (statusCode === 400) return 'validation';
@@ -36,7 +37,10 @@ export class RequestTimingInterceptor implements NestInterceptor {
   private readonly shouldLogRequests =
     process.env.BENCHMARK_REQUEST_LOGS === '1';
 
-  constructor(private readonly metrics: MetricsService) {}
+  constructor(
+    private readonly metrics: MetricsService,
+    private readonly forwarder: ObservabilityForwarderService,
+  ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const http = context.switchToHttp();
@@ -46,6 +50,8 @@ export class RequestTimingInterceptor implements NestInterceptor {
     const start = process.hrtime.bigint();
     const ts = new Date().toISOString();
     const requestId = (req as any).requestId as string | undefined;
+    const traceId = req.header('x-trace-id') || requestId;
+    const userId = (req as any).user?.id as string | undefined;
     const method = req.method;
     return next.handle().pipe(
       tap({
@@ -68,6 +74,31 @@ export class RequestTimingInterceptor implements NestInterceptor {
           };
 
           this.metrics.recordRequest(metric);
+          this.forwarder.emit('metrics', {
+            requestId,
+            traceId,
+            endpoint: route,
+            method,
+            statusCode,
+            latencyMs: durationMs,
+            timestamp: ts,
+            userId,
+            payload: errorCategory ? { errorCategory } : undefined,
+          });
+          this.forwarder.emit('traces', {
+            requestId,
+            traceId,
+            endpoint: route,
+            method,
+            statusCode,
+            latencyMs: durationMs,
+            timestamp: ts,
+            userId,
+            payload: {
+              stage: 'response',
+              errorCategory: errorCategory || 'none',
+            },
+          });
           if (this.shouldLogRequests) {
             console.log(JSON.stringify({ type: 'request', ...metric }));
           }
@@ -92,6 +123,31 @@ export class RequestTimingInterceptor implements NestInterceptor {
         };
 
         this.metrics.recordRequest(metric);
+        this.forwarder.emit('metrics', {
+          requestId,
+          traceId,
+          endpoint: route,
+          method,
+          statusCode,
+          latencyMs: durationMs,
+          timestamp: ts,
+          userId,
+          payload: { errorCategory },
+        });
+        this.forwarder.emit('traces', {
+          requestId,
+          traceId,
+          endpoint: route,
+          method,
+          statusCode,
+          latencyMs: durationMs,
+          timestamp: ts,
+          userId,
+          payload: {
+            stage: 'error',
+            errorCategory,
+          },
+        });
         if (this.shouldLogRequests) {
           console.log(JSON.stringify({ type: 'request', ...metric }));
         }
