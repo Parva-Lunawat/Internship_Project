@@ -55,6 +55,7 @@ export default function ProfileForm({ initialUser, onUpdate }: ProfileFormProps)
       const updated = await updateCurrentUser(updatePayload);
 
       const sessionUpdate = {
+        id: currentUser?.id ?? initialUser.id,
         name: updated.name,
         email: updated.email!,
         avatar: updated.avatar,

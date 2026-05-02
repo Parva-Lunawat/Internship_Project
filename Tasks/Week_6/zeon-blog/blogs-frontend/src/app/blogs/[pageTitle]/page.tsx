@@ -3,6 +3,7 @@ import { getPublishedPostByPageTitle } from "@/src/lib/api/blogsApi";
 import ReactMarkdown from "react-markdown";
 import type { ComponentPropsWithoutRef } from "react";
 import { resolveImageUrl } from "@/src/lib/utils/urlUtils";
+import { CommentsSection } from "@/src/app/components/blogs/CommentsSection";
 
 type pageParams = {
     params: Promise<{ pageTitle: string }>;
@@ -62,6 +63,7 @@ export default async function Page({ params }: pageParams) {
                     {post.content}
                 </ReactMarkdown>
             </div>
+            <CommentsSection blogId={post.id} authorId={post.author.id} />
         </article>
     );
 }

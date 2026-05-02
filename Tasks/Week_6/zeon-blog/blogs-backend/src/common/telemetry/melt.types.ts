@@ -9,6 +9,7 @@ export type MeltRecord = {
   userId?: string;
   eventType?: string;
   logLevel?: 'debug' | 'info' | 'warn' | 'error';
+  sourceService?: string;
   serviceName?: string;
   schemaVersion?: string;
   message?: string;

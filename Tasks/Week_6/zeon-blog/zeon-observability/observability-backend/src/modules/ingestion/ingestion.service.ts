@@ -111,6 +111,14 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
     return Number.isNaN(date.valueOf()) ? new Date() : date;
   }
 
+  private sourceService(item: { sourceService?: string; serviceName?: string }) {
+    return item.sourceService || item.serviceName || 'unknown-service';
+  }
+
+  private schemaVersion(item: { schemaVersion?: string }) {
+    return item.schemaVersion || '1.0';
+  }
+
   private async flush() {
     if (this.flushing || this.queue.length === 0) return;
     this.flushing = true;
@@ -129,6 +137,9 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
           requestId: entry.item.requestId ?? null,
           traceId: entry.item.traceId ?? null,
           userId: entry.item.userId ?? null,
+          sourceService: this.sourceService(entry.item),
+          serviceName: entry.item.serviceName ?? null,
+          schemaVersion: this.schemaVersion(entry.item),
           payload: entry.item.payload ?? null,
           timestamp: this.toDate(entry.item.timestamp),
         });
@@ -138,6 +149,9 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
           requestId: entry.item.requestId ?? null,
           traceId: entry.item.traceId ?? null,
           userId: entry.item.userId ?? null,
+          sourceService: this.sourceService(entry.item),
+          serviceName: entry.item.serviceName ?? null,
+          schemaVersion: this.schemaVersion(entry.item),
           payload: entry.item.payload ?? null,
           message: entry.item.message ?? null,
           statusCode: entry.item.statusCode ?? null,
@@ -150,6 +164,9 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
           requestId: entry.item.requestId ?? null,
           traceId: entry.item.traceId ?? null,
           userId: entry.item.userId ?? null,
+          sourceService: this.sourceService(entry.item),
+          serviceName: entry.item.serviceName ?? null,
+          schemaVersion: this.schemaVersion(entry.item),
           payload: entry.item.payload ?? null,
           statusCode: entry.item.statusCode ?? null,
           latencyMs: entry.item.latencyMs ?? null,
@@ -160,6 +177,9 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
           ...entry.item,
           requestId: entry.item.requestId ?? null,
           userId: entry.item.userId ?? null,
+          sourceService: this.sourceService(entry.item),
+          serviceName: entry.item.serviceName ?? null,
+          schemaVersion: this.schemaVersion(entry.item),
           payload: entry.item.payload ?? null,
           statusCode: entry.item.statusCode ?? null,
           latencyMs: entry.item.latencyMs ?? null,

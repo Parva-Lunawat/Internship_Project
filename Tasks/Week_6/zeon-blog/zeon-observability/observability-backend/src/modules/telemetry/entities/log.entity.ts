@@ -13,6 +13,7 @@ import {
 @Index('idx_obs_logs_request_id', ['requestId'])
 @Index('idx_obs_logs_trace_id', ['traceId'])
 @Index('idx_obs_logs_level', ['logLevel'])
+@Index('idx_obs_logs_source_service', ['sourceService'])
 export class LogEntity {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -47,8 +48,11 @@ export class LogEntity {
   @Column({ type: 'varchar', length: 2000, nullable: true })
   message!: string | null;
 
-  @Column({ type: 'varchar', length: 80 })
-  serviceName!: string;
+  @Column({ type: 'varchar', length: 80, nullable: true })
+  sourceService!: string;
+
+  @Column({ type: 'varchar', length: 80, nullable: true })
+  serviceName!: string | null;
 
   @Column({ type: 'varchar', length: 20 })
   schemaVersion!: string;

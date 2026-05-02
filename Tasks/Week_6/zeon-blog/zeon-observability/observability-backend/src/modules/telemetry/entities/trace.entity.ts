@@ -12,6 +12,7 @@ import {
 @Index('idx_obs_traces_status_code', ['statusCode'])
 @Index('idx_obs_traces_request_id', ['requestId'])
 @Index('idx_obs_traces_trace_id', ['traceId'])
+@Index('idx_obs_traces_source_service', ['sourceService'])
 export class TraceEntity {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -40,8 +41,11 @@ export class TraceEntity {
   @Column({ type: 'varchar', length: 120, nullable: true })
   userId!: string | null;
 
-  @Column({ type: 'varchar', length: 80 })
-  serviceName!: string;
+  @Column({ type: 'varchar', length: 80, nullable: true })
+  sourceService!: string;
+
+  @Column({ type: 'varchar', length: 80, nullable: true })
+  serviceName!: string | null;
 
   @Column({ type: 'varchar', length: 20 })
   schemaVersion!: string;

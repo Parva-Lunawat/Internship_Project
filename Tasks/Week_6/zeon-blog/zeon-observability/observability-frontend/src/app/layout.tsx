@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import { ThemeProvider } from "@/src/components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Zeon Observability",
@@ -16,8 +17,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
-        <ToastContainer position="top-right" autoClose={3500} theme="dark" />
+        <ThemeProvider>{children}</ThemeProvider>
+        <ToastContainer position="top-right" autoClose={3500} />
       </body>
     </html>
   );

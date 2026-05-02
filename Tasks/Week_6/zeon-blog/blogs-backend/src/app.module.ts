@@ -16,6 +16,7 @@ import { BlogsModule } from './modules/Blogs/blogs.module';
 import { UsersModule } from './modules/Users/users.module';
 import { AuthModule } from './modules/Auth/auth.module';
 import { UploadModule } from './modules/Upload/upload.module';
+import { CommentsModule } from './modules/Comments/comments.module';
 import { DiagnosticsModule } from './diagnostics/diagnostics.module';
 import { TelemetryModule } from './common/telemetry/telemetry.module';
 import { HttpExceptionFilter } from './common/http-exception.filter';
@@ -50,6 +51,7 @@ import { HttpExceptionFilter } from './common/http-exception.filter';
     UsersModule,
     AuthModule,
     UploadModule,
+    CommentsModule,
     DiagnosticsModule,
   ],
   controllers: [AppController],

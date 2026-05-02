@@ -19,6 +19,7 @@ export type BlogPost = {
     tags: BlogTags[];
     publishedAt: string | null;
     status: 'draft' | 'published';
+    commentCount?: number;
     author: BlogAuthor;
     createdAt: string;
     updatedAt: string;
