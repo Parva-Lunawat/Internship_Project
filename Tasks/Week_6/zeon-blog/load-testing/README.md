@@ -1,36 +1,17 @@
-# Load Testing Suite (Phase 2)
+# Load Testing
 
-This folder is intentionally outside runtime application code. It provides repeatable, versioned benchmark scenarios that emit machine-readable JSON summaries.
+## Purpose
+This workspace contains local scenario runners for measuring blog and comment flows.
 
-## Prereqs
+## What Lives Here
+- Scenario files for public reads, detail reads, login bursts, write bursts, upload bursts, comment creation, comment listing, and mixed traffic.
+- Shared helpers for network calls, scenario timing, and summary statistics.
+- A runner that executes the scenario set and writes benchmark summaries to the results directory.
 
-- Node.js 18+ (for built-in `fetch`, `FormData`, `Blob`)
-- Backend running (Nest) with `CORS_ORIGIN` allowing your load runner
-- A MySQL database configured via backend env vars
+## Navigation
+- Add new traffic models as focused scenario files.
+- Reuse shared helpers instead of duplicating request and statistics logic.
+- Store generated benchmark summaries in the results directory.
 
-## Common Environment Variables
-
-- `BASE_URL` (default: `http://localhost:5000/api/v1`)
-- `CONCURRENCY` (default: `10`)
-- `DURATION_SEC` (default: `30`)
-- `OUTFILE` (optional: write JSON summary to this path)
-- `EMAIL` / `PASSWORD` (used for auth scenarios)
-
-## Scenarios
-
-- `node load-testing/scenarios/public_blogs.mjs`
-- `node load-testing/scenarios/blog_detail.mjs`
-- `node load-testing/scenarios/login_burst.mjs`
-- `node load-testing/scenarios/write_burst.mjs`
-- `node load-testing/scenarios/upload_burst.mjs`
-- `node load-testing/scenarios/mixed_traffic.mjs`
-
-## Output
-
-Each run prints a single JSON object with:
-
-- `scenario`, `startedAt`, `endedAt`, `baseUrl`
-- `requests`, `errors`, `errorRate`
-- `latencyMs` with `avg`, `p50`, `p95`, `p99`, `min`, `max`
-- `throughput` with `rps`
-
+## Safe Usage Notes
+Runtime targets and private access material should be supplied locally and never committed to markdown. Reports should summarize methods and outcomes without concrete hosts or account values.

@@ -55,13 +55,20 @@ export class TelemetryBaseDto {
   @MaxLength(120)
   userId?: string;
 
+  @IsOptional()
   @IsString()
   @MaxLength(80)
-  serviceName!: string;
+  sourceService?: string;
 
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  serviceName?: string;
+
+  @IsOptional()
   @IsString()
   @MaxLength(20)
-  schemaVersion!: string;
+  schemaVersion?: string;
 
   @IsOptional()
   @IsObject()

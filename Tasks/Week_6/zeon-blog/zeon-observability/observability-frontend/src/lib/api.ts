@@ -11,6 +11,16 @@ function extractMessage(payload: unknown): string {
   return "Request failed";
 }
 
+function friendlyError(status: number, message: string): string {
+  if (status === 404 || /^Cannot\s+(GET|POST|PATCH|PUT|DELETE)\s+/i.test(message)) {
+    return "That observability data is not available yet. Please refresh after the backend restarts.";
+  }
+  if (status === 401) return "Please sign in again to view observability data.";
+  if (status === 403) return "Your account does not have access to this observability view.";
+  if (status >= 500) return "The observability service is having trouble. Please try again shortly.";
+  return message || "Request failed. Please try again.";
+}
+
 async function parseJson<T>(response: Response): Promise<T> {
   if (!response.ok) {
     let msg = `Request failed with status ${response.status}`;
@@ -19,7 +29,7 @@ async function parseJson<T>(response: Response): Promise<T> {
     } catch {
       // noop
     }
-    throw new Error(msg);
+    throw new Error(friendlyError(response.status, msg));
   }
   return response.json() as Promise<T>;
 }

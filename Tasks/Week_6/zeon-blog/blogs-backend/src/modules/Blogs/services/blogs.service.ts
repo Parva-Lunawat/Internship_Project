@@ -23,6 +23,7 @@ import { In, Repository } from 'typeorm';
 import { Blog, BlogStatus } from '../entities/blogs.entities';
 import { Tag } from '../entities/tag.entities';
 import { User } from 'src/modules/Users/entities/user.entities';
+import { Comment } from 'src/modules/Comments/entities/comment.entity';
 
 import { CreateBlogDto } from '../dto/create-blog.dto';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
@@ -41,6 +42,9 @@ export class BlogsService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(Comment)
+    private readonly commentsRepository: Repository<Comment>,
   ) {}
 
   // Private Helpers
@@ -58,9 +62,10 @@ export class BlogsService {
     const reserved = ['self-blogs', 'me', 'id', 'auth', 'users'];
     return reserved.includes(pageTitle);
   }
-  private mapBlogResponse(blog: Blog) {
+  private mapBlogResponse(blog: Blog, commentCount = 0) {
     return {
       ...blog,
+      commentCount,
       author: blog.author
         ? {
             id: blog.author.id,
@@ -69,6 +74,21 @@ export class BlogsService {
           }
         : null,
     };
+  }
+  private async commentCountsForBlogs(blogIds: string[]) {
+    if (blogIds.length === 0) return new Map<string, number>();
+    if (!this.commentsRepository?.createQueryBuilder) {
+      return new Map<string, number>();
+    }
+    const rows = await this.commentsRepository
+      .createQueryBuilder('comment')
+      .select('comment.blogId', 'blogId')
+      .addSelect('COUNT(*)', 'count')
+      .where('comment.blogId IN (:...blogIds)', { blogIds })
+      .andWhere('comment.deletedAt IS NULL')
+      .groupBy('comment.blogId')
+      .getRawMany<{ blogId: string; count: string }>();
+    return new Map(rows.map((row) => [row.blogId, Number(row.count)]));
   }
   private async ensureUniquePageTitle(
     pageTitle: string,
@@ -210,8 +230,9 @@ export class BlogsService {
       .take(pageSize);
     const [blogs, totalBlogs] = await qb.getManyAndCount();
 
+    const counts = await this.commentCountsForBlogs(blogs.map((blog) => blog.id));
     return {
-      blogs: blogs.map(this.mapBlogResponse),
+      blogs: blogs.map((blog) => this.mapBlogResponse(blog, counts.get(blog.id) ?? 0)),
       meta: this.buildMeta(totalBlogs, page, pageSize),
     };
   }
@@ -233,7 +254,8 @@ export class BlogsService {
         `Published blog with pageTitle "${pageTitle}" not found.`,
       );
     }
-    return this.mapBlogResponse(blog);
+    const counts = await this.commentCountsForBlogs([blog.id]);
+    return this.mapBlogResponse(blog, counts.get(blog.id) ?? 0);
   }
 
   // Writer APIs
@@ -271,15 +293,17 @@ export class BlogsService {
       .skip((page - 1) * pageSize)
       .take(pageSize);
     const [blogs, totalBlogs] = await qb.getManyAndCount();
+    const counts = await this.commentCountsForBlogs(blogs.map((blog) => blog.id));
     return {
-      blogs: blogs.map(this.mapBlogResponse),
+      blogs: blogs.map((blog) => this.mapBlogResponse(blog, counts.get(blog.id) ?? 0)),
       meta: this.buildMeta(totalBlogs, page, pageSize),
     };
   }
   // to be checked later
   async getMyBlogsById(blogId: string, currentUser: CurrentUser) {
     const blog = await this.findManagedBlogById(blogId, currentUser);
-    return this.mapBlogResponse(blog);
+    const counts = await this.commentCountsForBlogs([blog.id]);
+    return this.mapBlogResponse(blog, counts.get(blog.id) ?? 0);
   }
   async createBlog(dto: CreateBlogDto, currentUser: CurrentUser) {
     await this.ensureUniquePageTitle(dto.pageTitle);
@@ -298,7 +322,7 @@ export class BlogsService {
       tags,
     });
     await this.blogsRepository.save(blog);
-    return this.mapBlogResponse(blog);
+    return this.mapBlogResponse(blog, 0);
   }
   async updateBlog(
     blogId: string,
@@ -341,7 +365,8 @@ export class BlogsService {
     }
 
     await this.blogsRepository.save(updateBlog);
-    return this.mapBlogResponse(updateBlog);
+    const counts = await this.commentCountsForBlogs([updateBlog.id]);
+    return this.mapBlogResponse(updateBlog, counts.get(updateBlog.id) ?? 0);
   }
   async deleteBlog(
     blogId: string,

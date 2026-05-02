@@ -2,32 +2,103 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { IngestionService } from './ingestion.service';
 
-function buildService() {
-  return new IngestionService(
-    { insert: vi.fn(async () => undefined) } as any,
-    { insert: vi.fn(async () => undefined) } as any,
-    { insert: vi.fn(async () => undefined) } as any,
-    { insert: vi.fn(async () => undefined) } as any,
-  );
+function repo() {
+  return { save: vi.fn(async () => undefined) };
 }
 
-describe('IngestionService', () => {
-  it('queues telemetry in a bounded non-throwing way', () => {
-    const service = buildService();
-    const response = service.enqueueMetrics([
+describe('IngestionService compatibility mapping', () => {
+  it('stores sourceService when only the legacy serviceName alias is sent', async () => {
+    const metricsRepo = repo();
+    const service = new IngestionService(
+      metricsRepo as any,
+      repo() as any,
+      repo() as any,
+      repo() as any,
+    );
+
+    service.enqueueMetrics([
       {
         endpoint: '/blogs',
         method: 'GET',
         statusCode: 200,
-        latencyMs: 12,
-        timestamp: new Date().toISOString(),
+        latencyMs: 42,
+        timestamp: '2026-01-01T00:00:00.000Z',
+        serviceName: 'blogs-backend',
+      } as any,
+    ]);
+    await (service as any).flush();
+
+    expect(metricsRepo.save).toHaveBeenCalledWith([
+      expect.objectContaining({
+        sourceService: 'blogs-backend',
         serviceName: 'blogs-backend',
         schemaVersion: '1.0',
-      },
+      }),
     ]);
+  });
 
-    expect(response.accepted).toBe(1);
-    expect(response.rejected).toBe(0);
-    expect(service.getStats().queueDepth).toBeGreaterThan(0);
+  it('backfills legacy serviceName from sourceService for existing schemas', async () => {
+    const metricsRepo = repo();
+    const service = new IngestionService(
+      metricsRepo as any,
+      repo() as any,
+      repo() as any,
+      repo() as any,
+    );
+
+    service.enqueueMetrics([
+      {
+        endpoint: '/blogs',
+        method: 'GET',
+        statusCode: 200,
+        latencyMs: 42,
+        timestamp: '2026-01-01T00:00:00.000Z',
+        sourceService: 'blogs-backend',
+      } as any,
+    ]);
+    await (service as any).flush();
+
+    expect(metricsRepo.save).toHaveBeenCalledWith([
+      expect.objectContaining({
+        sourceService: 'blogs-backend',
+        serviceName: 'blogs-backend',
+      }),
+    ]);
+  });
+
+  it('exposes a safe persistence error diagnostic when a flush fails', async () => {
+    const metricsRepo = {
+      save: vi.fn(async () => {
+        throw new Error('Column mismatch');
+      }),
+    };
+    const service = new IngestionService(
+      metricsRepo as any,
+      repo() as any,
+      repo() as any,
+      repo() as any,
+    );
+
+    service.enqueueMetrics([
+      {
+        endpoint: '/blogs',
+        method: 'GET',
+        statusCode: 200,
+        latencyMs: 42,
+        timestamp: '2026-01-01T00:00:00.000Z',
+        sourceService: 'blogs-backend',
+      } as any,
+    ]);
+    await (service as any).flush();
+
+    expect(service.getStats()).toEqual(
+      expect.objectContaining({
+        failed: 1,
+        lastPersistError: expect.objectContaining({
+          name: 'Error',
+          message: 'Column mismatch',
+        }),
+      }),
+    );
   });
 });

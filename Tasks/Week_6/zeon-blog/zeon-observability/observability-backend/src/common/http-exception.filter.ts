@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 
@@ -31,6 +32,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         typeof response === 'string' ? response : response?.message ?? message;
       if (Array.isArray(raw)) message = raw.join(', ');
       else if (typeof raw === 'string') message = raw;
+    }
+    if (exception instanceof NotFoundException && message.startsWith('Cannot ')) {
+      message = 'The requested observability resource was not found.';
     }
 
     if (!isHttp) {

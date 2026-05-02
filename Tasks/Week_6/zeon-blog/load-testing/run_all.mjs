@@ -10,6 +10,8 @@ const scenarios = [
   "login_burst",
   "write_burst",
   "upload_burst",
+  "comment_creation_burst",
+  "comment_listing",
   "mixed_traffic",
 ];
 

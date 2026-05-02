@@ -44,6 +44,25 @@ async function authCookie(baseUrl) {
   return jar.header();
 }
 
+async function ensureCommentBlog(baseUrl, cookie) {
+  const slug = `bench-mixed-comments-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+  const { res } = await timedFetch(`${baseUrl}/blogs`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({
+      pageTitle: slug,
+      title: `Mixed Comments ${slug}`,
+      excerpt: "Mixed comments excerpt. ".repeat(10).slice(0, 220),
+      coverImage: "https://example.com/cover.png",
+      content: "Mixed comments content. ".repeat(80),
+      tags: ["bench", "comments"],
+      status: "published",
+    }),
+  });
+  const payload = await readJsonSafe(res);
+  return payload?.id ?? payload?.data?.id;
+}
+
 function pick(weights) {
   const total = weights.reduce((a, b) => a + b.w, 0);
   let r = Math.random() * total;
@@ -58,6 +77,7 @@ await runScenario({
   scenario: "mixed_traffic",
   setup: async (ctx) => {
     ctx.cookie = await authCookie(ctx.baseUrl);
+    ctx.commentBlogId = await ensureCommentBlog(ctx.baseUrl, ctx.cookie);
     ctx.counter = 0;
     ctx.runId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
     ctx.weights = [
@@ -66,6 +86,8 @@ await runScenario({
       { k: "login", w: getEnvNumber("W_LOGIN", 10) },
       { k: "write", w: getEnvNumber("W_WRITE", 15) },
       { k: "upload", w: getEnvNumber("W_UPLOAD", 5) },
+      { k: "comment_create", w: getEnvNumber("W_COMMENT_CREATE", 8) },
+      { k: "comment_list", w: getEnvNumber("W_COMMENT_LIST", 12) },
     ];
   },
   worker: async (ctx, workerId) => {
@@ -115,6 +137,23 @@ await runScenario({
           tags: ["bench", "mixed"],
           status: "draft",
         }),
+      });
+      return { ok: res.ok, durationMs };
+    }
+
+    if (choice === "comment_create") {
+      const i = (ctx.counter += 1);
+      const { res, durationMs } = await timedFetch(`${ctx.baseUrl}/blogs/${ctx.commentBlogId}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Cookie: ctx.cookie },
+        body: JSON.stringify({ content: `Mixed traffic comment ${workerId}-${i}` }),
+      });
+      return { ok: res.ok, durationMs };
+    }
+
+    if (choice === "comment_list") {
+      const { res, durationMs } = await timedFetch(`${ctx.baseUrl}/blogs/${ctx.commentBlogId}/comments?page=1&pageSize=20`, {
+        method: "GET",
       });
       return { ok: res.ok, durationMs };
     }

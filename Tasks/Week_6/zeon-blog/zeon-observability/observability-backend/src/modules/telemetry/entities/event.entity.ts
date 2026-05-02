@@ -9,9 +9,12 @@ import {
 @Entity({ name: 'obs_events' })
 @Index('idx_obs_events_ts', ['timestamp'])
 @Index('idx_obs_events_event_type', ['eventType'])
+@Index('idx_obs_events_endpoint', ['endpoint'])
+@Index('idx_obs_events_status_code', ['statusCode'])
 @Index('idx_obs_events_request_id', ['requestId'])
 @Index('idx_obs_events_trace_id', ['traceId'])
 @Index('idx_obs_events_user_id', ['userId'])
+@Index('idx_obs_events_source_service', ['sourceService'])
 export class EventEntity {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -43,8 +46,11 @@ export class EventEntity {
   @Column({ type: 'varchar', length: 120 })
   eventType!: string;
 
-  @Column({ type: 'varchar', length: 80 })
-  serviceName!: string;
+  @Column({ type: 'varchar', length: 80, nullable: true })
+  sourceService!: string;
+
+  @Column({ type: 'varchar', length: 80, nullable: true })
+  serviceName!: string | null;
 
   @Column({ type: 'varchar', length: 20 })
   schemaVersion!: string;

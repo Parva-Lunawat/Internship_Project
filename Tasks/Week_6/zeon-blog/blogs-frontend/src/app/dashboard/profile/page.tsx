@@ -17,7 +17,6 @@ export default function PersonalProfilePage() {
   }
 
   const userToEdit: User = {
-    id: "",
     ...user,
   };
 
