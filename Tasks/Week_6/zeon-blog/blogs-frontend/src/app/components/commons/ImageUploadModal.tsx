@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { X, Upload, Image as ImageIcon, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { X, Upload, Image as ImageIcon, Loader2, AlertCircle } from "lucide-react";
 import { uploadImage } from "../../../lib/api/uploadApi";
 import { toast } from "react-toastify";
 
