@@ -35,6 +35,8 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
   private failed = 0;
   private flushCount = 0;
   private totalPersistMs = 0;
+  private lastPersistError: { name: string; message: string; ts: string } | null =
+    null;
 
   constructor(
     @InjectRepository(MetricEntity)
@@ -68,6 +70,7 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
       flushCount: this.flushCount,
       avgPersistMs:
         this.flushCount > 0 ? this.totalPersistMs / this.flushCount : 0,
+      lastPersistError: this.lastPersistError,
     };
   }
 
@@ -119,6 +122,13 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
     return item.schemaVersion || '1.0';
   }
 
+  private legacyServiceName(item: {
+    sourceService?: string;
+    serviceName?: string;
+  }) {
+    return item.serviceName || this.sourceService(item);
+  }
+
   private async flush() {
     if (this.flushing || this.queue.length === 0) return;
     this.flushing = true;
@@ -138,7 +148,7 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
           traceId: entry.item.traceId ?? null,
           userId: entry.item.userId ?? null,
           sourceService: this.sourceService(entry.item),
-          serviceName: entry.item.serviceName ?? null,
+          serviceName: this.legacyServiceName(entry.item),
           schemaVersion: this.schemaVersion(entry.item),
           payload: entry.item.payload ?? null,
           timestamp: this.toDate(entry.item.timestamp),
@@ -150,7 +160,7 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
           traceId: entry.item.traceId ?? null,
           userId: entry.item.userId ?? null,
           sourceService: this.sourceService(entry.item),
-          serviceName: entry.item.serviceName ?? null,
+          serviceName: this.legacyServiceName(entry.item),
           schemaVersion: this.schemaVersion(entry.item),
           payload: entry.item.payload ?? null,
           message: entry.item.message ?? null,
@@ -165,7 +175,7 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
           traceId: entry.item.traceId ?? null,
           userId: entry.item.userId ?? null,
           sourceService: this.sourceService(entry.item),
-          serviceName: entry.item.serviceName ?? null,
+          serviceName: this.legacyServiceName(entry.item),
           schemaVersion: this.schemaVersion(entry.item),
           payload: entry.item.payload ?? null,
           statusCode: entry.item.statusCode ?? null,
@@ -178,7 +188,7 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
           requestId: entry.item.requestId ?? null,
           userId: entry.item.userId ?? null,
           sourceService: this.sourceService(entry.item),
-          serviceName: entry.item.serviceName ?? null,
+          serviceName: this.legacyServiceName(entry.item),
           schemaVersion: this.schemaVersion(entry.item),
           payload: entry.item.payload ?? null,
           statusCode: entry.item.statusCode ?? null,
@@ -196,8 +206,17 @@ export class IngestionService implements OnModuleInit, OnModuleDestroy {
         traces.length ? this.tracesRepo.save(traces) : Promise.resolve(),
       ]);
       this.persisted += chunk.length;
-    } catch {
+      this.lastPersistError = null;
+    } catch (error) {
       this.failed += chunk.length;
+      this.lastPersistError = {
+        name: error instanceof Error ? error.name : 'Error',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Telemetry persistence failed',
+        ts: new Date().toISOString(),
+      };
     } finally {
       this.flushCount += 1;
       this.totalPersistMs += performance.now() - started;
