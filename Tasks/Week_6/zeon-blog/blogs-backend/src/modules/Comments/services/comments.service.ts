@@ -1,4 +1,4 @@
-﻿import {
+import {
   BadRequestException,
   ForbiddenException,
   Injectable,
@@ -36,8 +36,8 @@ export class CommentsService {
 
   private emit(eventType: string, payload: Record<string, unknown>, userId?: string) {
     this.observability?.emit('events', {
-      endpoint: payload.endpoint as string || '/comments',
-      method: payload.method as string || 'GET',
+      endpoint: (payload.endpoint as string) || '/comments',
+      method: (payload.method as string) || 'GET',
       timestamp: new Date().toISOString(),
       userId,
       eventType,
@@ -46,7 +46,11 @@ export class CommentsService {
   }
 
   private sanitize(content: string) {
-    const sanitized = content.trim().replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '').replace(/<[^>]*>/g, '').trim();
+    const sanitized = content
+      .trim()
+      .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+      .replace(/<[^>]*>/g, '')
+      .trim();
     if (!sanitized) throw new BadRequestException('Comment content is required.');
     return sanitized;
   }
@@ -108,7 +112,7 @@ export class CommentsService {
 
   private roleMetadata(comment: Comment, blog?: Blog | null) {
     const authorRole = comment.author?.role;
-    const isAdmin = authorRole === UserRole.ADMIN || authorRole === 'admin';
+    const isAdmin = authorRole === UserRole.ADMIN;
     const isPostAuthor = Boolean(comment.author?.id && blog?.author?.id && comment.author.id === blog.author.id);
     return {
       isPostAuthor,
@@ -146,7 +150,7 @@ export class CommentsService {
   async listForBlog(blogId: string, query: QueryCommentsDto) {
     const started = performance.now();
     try {
-      await this.getBlog(blogId);
+      const blog = await this.getBlog(blogId);
       const page = this.normalizePage(query.page);
       const pageSize = this.normalizePageSize(query.pageSize);
       const where = {
@@ -261,3 +265,4 @@ export class CommentsService {
     return new Map(rows.map((row) => [row.blogId, Number(row.count)]));
   }
 }
+

@@ -15,5 +15,3 @@ This workspace contains local scenario runners for measuring blog and comment fl
 
 ## Safe Usage Notes
 Runtime targets and private access material should be supplied locally and never committed to markdown. Reports should summarize methods and outcomes without concrete hosts or account values.
-
-

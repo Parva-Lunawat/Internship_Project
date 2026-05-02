@@ -20,4 +20,3 @@ Runtime configuration should be supplied outside committed markdown. Do not docu
 
 ## Validation
 Run the package build and frontend test suite after UI or API-client changes. Smoke-test important pages after behavior changes.
-

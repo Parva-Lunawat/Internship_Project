@@ -8,7 +8,7 @@ This package implements the operator dashboard for Zeon Observability.
 - Pages for overview, metrics, logs, events, traces, correlation, issues, and issue details.
 - Shared data table and filter components.
 - Client API helpers that map backend failures to user-safe messages.
-- Tests for frontend auth and client behavior.
+- Tests for frontend access and client behavior.
 
 ## Navigation
 - Start with the dashboard layout and shell to understand shared navigation.
@@ -21,4 +21,3 @@ Runtime endpoints and private access material should be configured outside commi
 
 ## Validation
 Run the frontend build and tests after dashboard, theme, filter, polling, or API-client changes. Smoke-test theme switching and bucket interactions after UI edits.
-

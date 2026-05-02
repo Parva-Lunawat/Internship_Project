@@ -4,7 +4,7 @@
 This workspace contains the standalone observability product for Zeon.
 
 ## Workspace Map
-- `observability-backend/`: NestJS backend for telemetry ingestion, query APIs, route catalog, buckets, issues, service map, retention diagnostics, and auth boundaries.
+- `observability-backend/`: NestJS backend for telemetry ingestion, query APIs, route catalog, buckets, issues, service map, retention diagnostics, and access boundaries.
 - `observability-frontend/`: Next.js dashboard for summary cards, endpoint filtering, buckets, logs, events, traces, issues, service flow, refresh controls, and theme switching.
 
 ## Data Model
@@ -17,4 +17,3 @@ Observability behavior is built around metrics, events, logs, and traces. Shared
 
 ## Safe Setup Notes
 Keep runtime values, private access material, and concrete service targets out of committed markdown. Store operational configuration in local or deployment-specific systems.
-

@@ -79,6 +79,7 @@ describe('QueryController route contracts', () => {
     expect(routePath('issues')).toBe('issues');
     expect(routePath('issueDetail')).toBe('issues/:fingerprint');
     expect(list.meta).toEqual({ total: 0, page: 1, limit: 20 });
+    expect(queryService.issues).toHaveBeenCalledWith(expect.objectContaining({ page: 1, limit: 5 }));
     expect(queryService.issueDetail).toHaveBeenCalledWith('missing-fingerprint', expect.any(Object));
   });
 });

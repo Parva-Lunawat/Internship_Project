@@ -1,4 +1,4 @@
-﻿const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1';
 
 export type CommentAuthor = {
   id: string;
@@ -46,7 +46,7 @@ function friendlyCommentError(status: number, message: string): string {
   if (status === 401) return 'Please sign in before changing comments.';
   if (status === 403) return 'You do not have permission to change this comment.';
   if (status === 404) return 'That comment is no longer available.';
-  if (status === 400 && message) return message;
+  if (status === 400 && message && !/^Cannot\s+/i.test(message)) return message;
   if (status >= 500) return 'Comments are temporarily unavailable. Please try again shortly.';
   return 'Unable to complete the comment action. Please try again.';
 }
