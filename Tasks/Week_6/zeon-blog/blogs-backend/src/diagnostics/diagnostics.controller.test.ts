@@ -7,10 +7,17 @@ describe('DiagnosticsController (vitest)', () => {
   const metricsService = {
     snapshot: vi.fn(),
   };
+  const forwarderService = {
+    getStats: vi.fn(),
+  };
 
   beforeEach(() => {
     metricsService.snapshot.mockReset();
-    controller = new DiagnosticsController(metricsService as any);
+    forwarderService.getStats.mockReset();
+    controller = new DiagnosticsController(
+      metricsService as any,
+      forwarderService as any,
+    );
   });
 
   it('returns runtime snapshot for admin user', async () => {
@@ -38,6 +45,14 @@ describe('DiagnosticsController (vitest)', () => {
       recent: [],
       aggregates: {},
     });
+    forwarderService.getStats.mockReturnValueOnce({
+      enabled: true,
+      queueDepth: 0,
+      accepted: 10,
+      dropped: 0,
+      flushed: 10,
+      failed: 0,
+    });
 
     const response = await controller.metricsSnapshot({
       user: { id: 'admin-1', email: 'admin@example.com', role: 'admin' },
@@ -46,9 +61,19 @@ describe('DiagnosticsController (vitest)', () => {
     expect(metricsService.snapshot).toHaveBeenCalledTimes(1);
     expect(response).toEqual({
       data: {
-        ts: '2026-04-24T00:00:00.000Z',
-        recent: [],
-        aggregates: {},
+        metrics: {
+          ts: '2026-04-24T00:00:00.000Z',
+          recent: [],
+          aggregates: {},
+        },
+        forwarding: {
+          enabled: true,
+          queueDepth: 0,
+          accepted: 10,
+          dropped: 0,
+          flushed: 10,
+          failed: 0,
+        },
       },
     });
   });

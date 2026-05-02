@@ -4,8 +4,10 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
+  Injectable,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
+import { ObservabilityForwarderService } from './telemetry/observability-forwarder.service';
 
 function classifyError(statusCode: number, exception: unknown): string {
   if (statusCode === 400) return 'validation';
@@ -20,7 +22,10 @@ function classifyError(statusCode: number, exception: unknown): string {
 }
 
 @Catch()
+@Injectable()
 export class HttpExceptionFilter implements ExceptionFilter {
+  constructor(private readonly forwarder: ObservabilityForwarderService) {}
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();
@@ -63,6 +68,22 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       console.error(JSON.stringify(logPayload));
     }
+    this.forwarder.emit('logs', {
+      requestId,
+      traceId: req.header('x-trace-id') || requestId,
+      endpoint: req.originalUrl,
+      method: req.method,
+      statusCode,
+      timestamp: new Date().toISOString(),
+      logLevel: statusCode >= 500 ? 'error' : 'warn',
+      userId: (req as any).user?.id as string | undefined,
+      message,
+      payload: {
+        category: errorCategory,
+        isHttp,
+        exceptionName: exception instanceof Error ? exception.name : undefined,
+      },
+    });
 
     res.status(statusCode).json({
       error: {

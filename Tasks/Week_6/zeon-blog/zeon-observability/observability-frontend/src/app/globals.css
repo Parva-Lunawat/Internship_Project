@@ -1,0 +1,151 @@
+:root {
+  color-scheme: dark;
+  --bg: #070f1d;
+  --panel: #101b2f;
+  --panel-soft: #14213b;
+  --line: #27406b;
+  --text: #dbe8ff;
+  --muted: #90a9d0;
+  --accent: #4ec2ff;
+  --danger: #ff6b7e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  background: radial-gradient(circle at top right, #163059, var(--bg) 45%);
+  color: var(--text);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+.obs-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+}
+
+.obs-nav {
+  border-right: 1px solid var(--line);
+  background: rgba(7, 15, 29, 0.8);
+  backdrop-filter: blur(6px);
+  padding: 24px 14px;
+}
+
+.obs-nav h1 {
+  margin: 0 0 18px;
+  font-size: 18px;
+  color: var(--accent);
+}
+
+.obs-nav a {
+  display: block;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  color: var(--muted);
+  border: 1px solid transparent;
+}
+
+.obs-nav a:hover {
+  border-color: var(--line);
+  color: var(--text);
+}
+
+.obs-main {
+  padding: 24px;
+}
+
+.obs-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.obs-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.obs-filters input,
+.obs-filters select {
+  background: #0c1526;
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.obs-btn {
+  background: var(--accent);
+  color: #031021;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.obs-btn.secondary {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.obs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.obs-table th,
+.obs-table td {
+  border-bottom: 1px solid rgba(39, 64, 107, 0.5);
+  text-align: left;
+  padding: 8px 6px;
+  vertical-align: top;
+}
+
+.obs-muted {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.obs-danger {
+  color: var(--danger);
+}
+
+.obs-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 980px) {
+  .obs-shell {
+    grid-template-columns: 1fr;
+  }
+  .obs-nav {
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .obs-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}

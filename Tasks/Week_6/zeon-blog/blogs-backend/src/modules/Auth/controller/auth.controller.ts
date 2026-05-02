@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Body,
+  Optional,
   Req,
   UseGuards,
   Res,
@@ -17,12 +18,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { JwtAuthGuard } from '../guard/jwt-auth.guard';
 import { SignupDto } from '../dto/signup.dto';
 import { LoginDto } from '../dto/login.dto';
 import type { CurrentUser } from '../types/current-user.type';
 import { ClientHeaderGuard } from 'src/guards/client-header.guard';
+import { ObservabilityForwarderService } from 'src/common/telemetry/observability-forwarder.service';
 
 @ApiTags('Auth')
 @Controller({
@@ -30,7 +32,11 @@ import { ClientHeaderGuard } from 'src/guards/client-header.guard';
   version: '1',
 })
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @Optional()
+    private readonly observability?: ObservabilityForwarderService,
+  ) {}
 
   @Post('signup')
   @ApiOperation({
@@ -106,12 +112,21 @@ export class AuthController {
     description: 'Clears authentication cookie and logs out user',
   })
   @ApiResponse({ status: 200, description: 'Logged out successfully' })
-  logout(@Res({ passthrough: true }) res: Response) {
+  logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const isProduction = process.env.NODE_ENV === 'production';
     res.clearCookie('access_token', {
       httpOnly: true,
       secure: isProduction,
       sameSite: 'lax',
+    });
+    this.observability?.emit('events', {
+      requestId: (req as any).requestId as string | undefined,
+      traceId: req.header('x-trace-id') || ((req as any).requestId as string),
+      endpoint: '/auth/logout',
+      method: 'POST',
+      timestamp: new Date().toISOString(),
+      userId: (req as any).user?.id as string | undefined,
+      eventType: 'auth_logout',
     });
 
     return {

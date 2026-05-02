@@ -18,6 +18,7 @@ import { AuthModule } from './modules/Auth/auth.module';
 import { UploadModule } from './modules/Upload/upload.module';
 import { DiagnosticsModule } from './diagnostics/diagnostics.module';
 import { TelemetryModule } from './common/telemetry/telemetry.module';
+import { HttpExceptionFilter } from './common/http-exception.filter';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Module({
@@ -52,6 +53,6 @@ import { TelemetryModule } from './common/telemetry/telemetry.module';
     DiagnosticsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, HttpExceptionFilter],
 })
 export class AppModule {}

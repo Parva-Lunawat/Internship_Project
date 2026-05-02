@@ -5,7 +5,6 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import { requestIdMiddleware } from './common/middleware/request-id.middleware';
-import { MetricsService } from './common/telemetry/metrics.service';
 import { RequestTimingInterceptor } from './common/telemetry/request-timing.interceptor';
 
 async function bootstrap() {
@@ -34,10 +33,8 @@ async function bootstrap() {
   );
   app.use(cookieParser());
   app.use(requestIdMiddleware);
-  app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalInterceptors(
-    new RequestTimingInterceptor(app.get(MetricsService)),
-  );
+  app.useGlobalFilters(app.get(HttpExceptionFilter));
+  app.useGlobalInterceptors(app.get(RequestTimingInterceptor));
   app.enableCors({
     origin: (origin, callback) => {
       // Allow non-browser requests (no Origin header).
