@@ -5,8 +5,8 @@
   "scripts": {
     "build": "nest build",
     "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:prod": "node dist/main",
+    "start:dev": "npm run build && nest start --watch",
+    "start:prod": "node dist/main.js",
     "lint": "eslint \"{src,test}/**/*.ts\" --fix",
     "test:vitest": "vitest run",
     "test:vitest:watch": "vitest"

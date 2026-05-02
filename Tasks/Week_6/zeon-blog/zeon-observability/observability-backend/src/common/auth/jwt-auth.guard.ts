@@ -34,7 +34,9 @@ export class JwtAuthGuard implements CanActivate {
   }
 
   private async verifyServiceToken(token: string): Promise<JwtPayload | null> {
-    const secret = this.configService.get<string>('OBS_JWT_SECRET');
+    const secret =
+      this.configService.get<string>('OBS_INGEST_JWT_SECRET') ||
+      this.configService.get<string>('OBS_JWT_SECRET');
     if (!secret) return null;
 
     try {

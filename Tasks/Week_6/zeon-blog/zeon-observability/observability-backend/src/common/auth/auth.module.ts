@@ -8,9 +8,8 @@ import { RolesGuard } from './roles.guard';
 @Module({
   imports: [
     ConfigModule,
-    JwtModule.register({
-      secret: process.env.OBS_JWT_SECRET || 'placeholder-observability-secret',
-    }),
+    // Guard paths provide explicit verification secrets; avoid hardcoded fallbacks.
+    JwtModule.register({}),
   ],
   providers: [JwtAuthGuard, RolesGuard],
   exports: [JwtAuthGuard, RolesGuard, JwtModule],

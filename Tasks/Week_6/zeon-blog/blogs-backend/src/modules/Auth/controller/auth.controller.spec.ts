@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from '../services/auth.service';
+import { ObservabilityForwarderService } from 'src/common/telemetry/observability-forwarder.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -15,6 +16,12 @@ describe('AuthController', () => {
             signup: jest.fn(),
             login: jest.fn(),
             self: jest.fn(),
+          },
+        },
+        {
+          provide: ObservabilityForwarderService,
+          useValue: {
+            emit: jest.fn(),
           },
         },
       ],

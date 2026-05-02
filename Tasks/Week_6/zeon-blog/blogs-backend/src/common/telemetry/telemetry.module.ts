@@ -7,9 +7,9 @@ import { RequestTimingInterceptor } from './request-timing.interceptor';
 @Global()
 @Module({
   imports: [
-    JwtModule.register({
-      secret: process.env.OBS_INGEST_JWT_SECRET || 'placeholder-observability',
-    }),
+    // Forwarder signs with an explicit per-call secret, so we avoid any hardcoded
+    // module-level fallback secret.
+    JwtModule.register({}),
   ],
   providers: [
     MetricsService,

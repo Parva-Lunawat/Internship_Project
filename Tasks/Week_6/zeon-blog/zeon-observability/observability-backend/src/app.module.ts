@@ -30,7 +30,7 @@ import { DiagnosticsModule } from './modules/diagnostics/diagnostics.module';
       database:
         process.env.OBS_DB_NAME || process.env.DB_NAME || 'zeon_observability',
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: process.env.OBS_DB_SYNCHRONIZE === '1',
     }),
     AuthModule,
     IngestionModule,

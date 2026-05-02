@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Body,
+  Optional,
   Req,
   UseGuards,
   Res,
@@ -33,6 +34,7 @@ import { ObservabilityForwarderService } from 'src/common/telemetry/observabilit
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    @Optional()
     private readonly observability?: ObservabilityForwarderService,
   ) {}
 

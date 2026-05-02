@@ -107,12 +107,17 @@ export class ObservabilityForwarderService implements OnModuleDestroy {
     );
   }
 
-  private takeBatch(type: MeltRecordType) {
-    return this.queue[type].splice(0, this.batchSize);
+  private peekBatch(type: MeltRecordType) {
+    return this.queue[type].slice(0, this.batchSize);
+  }
+
+  private dropBatch(type: MeltRecordType, count: number) {
+    if (count <= 0) return;
+    this.queue[type].splice(0, count);
   }
 
   private async flushType(type: MeltRecordType) {
-    const items = this.takeBatch(type);
+    const items = this.peekBatch(type);
     if (!items.length) return;
 
     const token = this.buildToken();
@@ -134,6 +139,7 @@ export class ObservabilityForwarderService implements OnModuleDestroy {
         this.failed += items.length;
         return;
       }
+      this.dropBatch(type, items.length);
       this.flushed += items.length;
     } catch {
       this.failed += items.length;

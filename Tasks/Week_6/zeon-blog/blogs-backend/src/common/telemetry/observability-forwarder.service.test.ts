@@ -6,6 +6,7 @@ import { ObservabilityForwarderService } from './observability-forwarder.service
 describe('ObservabilityForwarderService', () => {
   const originalEnv = { ...process.env };
   let service: ObservabilityForwarderService;
+  let signSpy: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     process.env.OBS_FORWARD_ENABLED = '1';
@@ -20,8 +21,9 @@ describe('ObservabilityForwarderService', () => {
       vi.fn(async () => ({ ok: true, status: 200 })) as any,
     );
 
+    signSpy = vi.fn(() => 'service-token');
     service = new ObservabilityForwarderService({
-      sign: vi.fn(() => 'service-token'),
+      sign: signSpy,
     } as unknown as JwtService);
   });
 
@@ -42,5 +44,55 @@ describe('ObservabilityForwarderService', () => {
     expect(stats.accepted).toBe(1);
     expect(stats.queueDepth).toBe(1);
     expect(stats.dropped).toBe(0);
+  });
+
+  it('keeps records queued when token cannot be built', async () => {
+    signSpy.mockReturnValueOnce('');
+
+    service.emit('metrics', {
+      endpoint: '/blogs',
+      method: 'GET',
+      timestamp: new Date().toISOString(),
+      latencyMs: 21,
+      statusCode: 200,
+    });
+
+    await (service as any).flushAll();
+
+    const stats = service.getStats();
+    expect(stats.queueDepth).toBe(1);
+    expect(stats.failed).toBe(1);
+    expect(stats.flushed).toBe(0);
+  });
+
+  it('keeps records queued on non-2xx responses', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: false, status: 503 })) as any,
+    );
+
+    service.emit('events', {
+      endpoint: '/auth/login',
+      method: 'POST',
+      timestamp: new Date().toISOString(),
+      eventType: 'auth_login_success',
+    });
+
+    await (service as any).flushAll();
+
+    const statsAfterFail = service.getStats();
+    expect(statsAfterFail.queueDepth).toBe(1);
+    expect(statsAfterFail.failed).toBe(1);
+    expect(statsAfterFail.flushed).toBe(0);
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: true, status: 200 })) as any,
+    );
+    await (service as any).flushAll();
+
+    const statsAfterRetry = service.getStats();
+    expect(statsAfterRetry.queueDepth).toBe(0);
+    expect(statsAfterRetry.flushed).toBe(1);
   });
 });

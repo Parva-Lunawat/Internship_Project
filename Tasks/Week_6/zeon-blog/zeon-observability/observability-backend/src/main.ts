@@ -9,6 +9,23 @@ import { HttpExceptionFilter } from './common/http-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = Number(process.env.PORT) || 5100;
+  const configuredOrigins = process.env.CORS_ORIGIN
+    ?.split(',')
+    .map((x) => x.trim())
+    .filter(Boolean);
+
+  const corsOrigins =
+    configuredOrigins && configuredOrigins.length
+      ? configuredOrigins
+      : process.env.NODE_ENV === 'production'
+        ? null
+        : ['http://localhost:5180'];
+
+  if (!corsOrigins) {
+    throw new Error(
+      'CORS_ORIGIN is required in production for observability-backend.',
+    );
+  }
 
   app.setGlobalPrefix('api');
   app.enableVersioning({
@@ -27,7 +44,7 @@ async function bootstrap() {
   app.useGlobalFilters(app.get(HttpExceptionFilter));
 
   app.enableCors({
-    origin: process.env.CORS_ORIGIN?.split(',').map((x) => x.trim()) ?? true,
+    origin: corsOrigins,
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-request-id'],
     credentials: true,
