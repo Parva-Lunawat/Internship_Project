@@ -70,6 +70,8 @@ const ISSUE_STATUSES = [
   'archived',
 ] as const;
 
+const METRIC_PAGE_SIZE = 10_000;
+
 function safeDate(value?: string): Date | undefined {
   if (!value) return undefined;
   const date = new Date(value);
@@ -205,11 +207,35 @@ export class QueryService {
     if (query.method) qb.andWhere(`${alias}.method = :method`, { method: query.method });
   }
 
-  private async metricRows(query: MaybeRange, take = 10_000) {
+  private createMetricQuery(query: MaybeRange) {
     const qb = this.metricRepo.createQueryBuilder('m');
     this.applyRange(qb, 'm', query);
     this.applyEndpoint(qb, 'm', query);
-    return qb.orderBy('m.timestamp', 'DESC').take(take).getMany();
+    return qb.orderBy('m.timestamp', 'DESC').addOrderBy('m.id', 'DESC');
+  }
+
+  private async metricRows(query: MaybeRange, take?: number) {
+    if (take !== undefined) {
+      return this.createMetricQuery(query).take(take).getMany();
+    }
+
+    const rows: MetricEntity[] = [];
+    let offset = 0;
+
+    while (true) {
+      const page = await this.createMetricQuery(query)
+        .skip(offset)
+        .take(METRIC_PAGE_SIZE)
+        .getMany();
+
+      rows.push(...page);
+      if (page.length < METRIC_PAGE_SIZE) {
+        break;
+      }
+      offset += page.length;
+    }
+
+    return rows;
   }
 
   async metricsAggregate(query: MetricsAggregateQueryDto) {

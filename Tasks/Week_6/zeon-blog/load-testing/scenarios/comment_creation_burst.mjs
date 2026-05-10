@@ -1,7 +1,7 @@
-﻿import { runScenario } from "../lib/scenario.mjs";
-import { createCookieJar, getEnvString, readJsonSafe, timedFetch } from "../lib/http.mjs";
+import { runScenario } from "../lib/scenario.mjs";
+import { createCookieJar, getEnvString, getRequiredEnvString, readJsonSafe, timedFetch } from "../lib/http.mjs";
 
-const password = () => getEnvString("PASSWORD", "Codal@123");
+const password = () => getRequiredEnvString("PASSWORD");
 const email = () => getEnvString("EMAIL", "bench-comments@zeon.local");
 
 async function authCookie(baseUrl) {

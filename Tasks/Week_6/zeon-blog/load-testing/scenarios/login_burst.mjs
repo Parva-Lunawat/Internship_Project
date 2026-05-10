@@ -1,8 +1,8 @@
 import { runScenario } from "../lib/scenario.mjs";
-import { createCookieJar, getEnvString, readJsonSafe, timedFetch } from "../lib/http.mjs";
+import { createCookieJar, getEnvString, getRequiredEnvString, readJsonSafe, timedFetch } from "../lib/http.mjs";
 
 function strongPassword() {
-  return getEnvString("PASSWORD", "Codal@123");
+  return getRequiredEnvString("PASSWORD");
 }
 
 function email() {

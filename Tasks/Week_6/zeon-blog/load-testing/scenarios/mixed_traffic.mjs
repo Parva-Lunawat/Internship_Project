@@ -4,12 +4,13 @@ import {
   createCookieJar,
   getEnvNumber,
   getEnvString,
+  getRequiredEnvString,
   readJsonSafe,
   timedFetch,
 } from "../lib/http.mjs";
 
 function strongPassword() {
-  return getEnvString("PASSWORD", "Codal@123");
+  return getRequiredEnvString("PASSWORD");
 }
 
 function email() {
