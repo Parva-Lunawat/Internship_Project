@@ -73,7 +73,9 @@ export class ObservabilityForwarderService implements OnModuleDestroy {
 
     this.queue[type].push({
       ...record,
-      serviceName: record.serviceName || 'blogs-backend',
+      sourceService:
+        record.sourceService || record.serviceName || 'blogs-backend',
+      serviceName: record.serviceName,
       schemaVersion: record.schemaVersion || '1.0',
       endpoint: record.endpoint || '__unknown_endpoint__',
       method: record.method || 'GET',

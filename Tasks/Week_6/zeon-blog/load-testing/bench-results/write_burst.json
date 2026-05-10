@@ -1,0 +1,1 @@
+{"scenario":"write_burst","startedAt":"2026-05-02T14:18:01.511Z","endedAt":"2026-05-02T14:18:31.525Z","baseUrl":"http://localhost:5000/api/v1","requests":8037,"errors":0,"errorRate":0,"latencyMs":{"min":9.655400000003283,"max":151.30259999999544,"avg":37.20056969018292,"p50":34.6588000000047,"p95":58.37649999999849,"p99":81.33280000000377},"throughput":{"rps":267.7750383154528}}

@@ -7,7 +7,6 @@ import {
   Body,
   Param,
   Query,
-  Res,
   Patch,
 } from '@nestjs/common';
 import {

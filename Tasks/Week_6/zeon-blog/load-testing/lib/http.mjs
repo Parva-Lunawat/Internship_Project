@@ -11,6 +11,14 @@ export function getEnvString(name, fallback) {
   return raw && raw.trim().length ? raw.trim() : fallback;
 }
 
+export function getRequiredEnvString(name) {
+  const raw = process.env[name];
+  if (raw && raw.trim().length) {
+    return raw.trim();
+  }
+  throw new Error(`Missing required load testing setting: ${name}`);
+}
+
 export function createCookieJar() {
   const jar = new Map();
   return {

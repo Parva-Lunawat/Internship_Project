@@ -16,6 +16,7 @@ export type AuthResult =
   | {
       type: "authenticated";
       user: {
+        id: string;
         name: string;
         email: string;
         avatar: string | null;
@@ -35,6 +36,7 @@ export async function login(input: LoginInput): Promise<AuthResult> {
     return {
       type: "authenticated",
       user: {
+        id: result.user.id,
         name: result.user.name,
         email: result.user.email,
         avatar: result.user.avatar,
@@ -70,6 +72,7 @@ export async function signup(input: SignupInput): Promise<AuthResult> {
     return {
       type: "authenticated",
       user: {
+        id: result.user.id,
         name: result.user.name,
         email: result.user.email,
         avatar: result.user.avatar,
