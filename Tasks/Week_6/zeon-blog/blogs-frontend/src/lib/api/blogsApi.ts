@@ -61,11 +61,26 @@ export type DeleteBlogResponse = {
 };
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1';
-const formatDate = (date: string | null) => date ? new Date(date).toISOString().split('T')[0] : null;
+const formatDate = (date: string | null | undefined) => {
+    if (!date) return null;
+    const parsed = new Date(date);
+    return Number.isNaN(parsed.valueOf()) ? null : parsed.toISOString().split('T')[0];
+};
 
 function normalizeBlog(payload: BlogPost): BlogPost {
+    const author = payload.author ?? { id: 'unknown-author', name: 'Zeon Team', avatar: null };
     return {
         ...payload,
+        title: payload.title ?? 'Untitled post',
+        excerpt: payload.excerpt ?? '',
+        coverImage: payload.coverImage ?? '',
+        content: payload.content ?? '',
+        tags: Array.isArray(payload.tags) ? payload.tags : [],
+        author: {
+            id: author.id ?? 'unknown-author',
+            name: author.name ?? 'Zeon Team',
+            avatar: author.avatar ?? null,
+        },
         featuredImageAlt: payload.featuredImageAlt ?? null,
         scheduledPublishAt: payload.scheduledPublishAt ?? null,
         readingTimeMinutes: payload.readingTimeMinutes ?? 1,
@@ -73,6 +88,7 @@ function normalizeBlog(payload: BlogPost): BlogPost {
         metaDescription: payload.metaDescription ?? null,
         canonicalPath: payload.canonicalPath ?? `/blogs/${payload.pageTitle}`,
         visibility: payload.visibility ?? 'public',
+        status: payload.status ?? 'draft',
         publishedAt: formatDate(payload.publishedAt),
     };
 }

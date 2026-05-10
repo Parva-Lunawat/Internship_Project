@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createBlog,
   deleteMyBlog,
+  getPublishedPostByPageTitle,
   listBlogRevisions,
   publishMyBlog,
   restoreBlogRevision,
@@ -225,5 +226,31 @@ describe('blogsApi integration-ish flows', () => {
       }),
     );
     expect(result).toEqual({ deleted: true, id: 'blog-1' });
+  });
+
+  it('normalizes legacy blog payloads without crashing the UI', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        id: 'blog-legacy',
+        pageTitle: 'legacy-post',
+        title: 'Legacy Post',
+        excerpt: null,
+        coverImage: null,
+        content: null,
+        publishedAt: 'not-a-date',
+        status: null,
+        createdAt: '2026-04-24T00:00:00.000Z',
+        updatedAt: '2026-04-24T00:00:00.000Z',
+      }),
+    });
+
+    const result = await getPublishedPostByPageTitle('legacy-post');
+
+    expect(result.tags).toEqual([]);
+    expect(result.author.name).toBe('Zeon Team');
+    expect(result.publishedAt).toBeNull();
+    expect(result.status).toBe('draft');
+    expect(result.content).toBe('');
   });
 });
