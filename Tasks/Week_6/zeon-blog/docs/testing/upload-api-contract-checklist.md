@@ -1,4 +1,4 @@
-# Upload API Contract Checklist
+ï»¿# Upload API Contract Checklist
 
 ## Purpose
 This checklist describes upload behavior validation without exposing concrete runtime values.
@@ -6,7 +6,7 @@ This checklist describes upload behavior validation without exposing concrete ru
 ## Contract Checks
 - Uploads require an authenticated and authorized caller where applicable.
 - Accepted file types and size limits are enforced by backend validation.
-- Stored media is returned through the application’s media-serving path.
+- Stored media is returned through the application's media-serving path.
 - Failure messages are user-safe and do not expose storage internals.
 
 ## Frontend Checks

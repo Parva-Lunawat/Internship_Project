@@ -2,11 +2,41 @@ import { notFound } from "next/navigation";
 import { getPublishedPostByPageTitle } from "@/src/lib/api/blogsApi";
 import ReactMarkdown from "react-markdown";
 import type { ComponentPropsWithoutRef } from "react";
+import type { Metadata } from "next";
 import { resolveImageUrl } from "@/src/lib/utils/urlUtils";
 import { CommentsSection } from "@/src/app/components/blogs/CommentsSection";
 
 type pageParams = {
     params: Promise<{ pageTitle: string }>;
+}
+
+export async function generateMetadata({ params }: pageParams): Promise<Metadata> {
+    const { pageTitle } = await params;
+    try {
+        const post = await getPublishedPostByPageTitle(pageTitle);
+        const title = post.metaTitle || post.title;
+        const description = post.metaDescription || post.excerpt;
+        return {
+            title,
+            description,
+            alternates: {
+                canonical: post.canonicalPath || `/blogs/${post.pageTitle}`,
+            },
+            openGraph: {
+                title,
+                description,
+                type: "article",
+                images: post.coverImage ? [{ url: post.coverImage, alt: post.featuredImageAlt || post.title }] : [],
+                publishedTime: post.publishedAt || undefined,
+                modifiedTime: post.updatedAt,
+                authors: [post.author.name],
+            },
+        };
+    } catch {
+        return {
+            title: "Post not found",
+        };
+    }
 }
 
 export default async function Page({ params }: pageParams) {
@@ -24,7 +54,7 @@ export default async function Page({ params }: pageParams) {
                 <div className="aspect-[16/9] w-full overflow-hidden bg-gray-100 dark:bg-gray-900">
                     <img
                         src={post.coverImage}
-                        alt={post.title}
+                        alt={post.featuredImageAlt || post.title}
                         className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
                     />
                 </div>
@@ -39,9 +69,14 @@ export default async function Page({ params }: pageParams) {
                                 <p className="text-base opacity-90">Published on</p>
                                 <p className="text-xl font-bold">{post.publishedAt}</p>
                             </div>
+                            <div>
+                                <p className="text-base opacity-90">Read time</p>
+                                <p className="text-xl font-bold">{post.readingTimeMinutes} min</p>
+                            </div>
                         </div>
                         <div>
                             <img src={resolveImageUrl(post.author.avatar)}
+                            alt={post.author.name}
                             className="h-20 w-20 rounded-full border-2 border-white object-cover" />
                         </div>
                     </div>
@@ -63,6 +98,15 @@ export default async function Page({ params }: pageParams) {
                     {post.content}
                 </ReactMarkdown>
             </div>
+            {post.tags.length ? (
+                <div className="flex flex-wrap gap-2">
+                    {post.tags.map((tag) => (
+                        <span key={tag.id} className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold uppercase tracking-widest text-gray-600 dark:bg-slate-800 dark:text-sky-200">
+                            {tag.name}
+                        </span>
+                    ))}
+                </div>
+            ) : null}
             <CommentsSection blogId={post.id} authorId={post.author.id} />
         </article>
     );

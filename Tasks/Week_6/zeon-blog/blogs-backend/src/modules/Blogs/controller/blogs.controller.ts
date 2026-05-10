@@ -13,6 +13,7 @@ import {
 import { CreateBlogDto } from '../dto/create-blog.dto';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
 import { QueryBlogsDto } from '../dto/query-blog.dto';
+import { ScheduleBlogDto } from '../dto/schedule-blog.dto';
 import { BlogsService } from '../services/blogs.service';
 import { Blog } from '../entities/blogs.entities';
 import { JwtAuthGuard } from 'src/modules/Auth/guard/jwt-auth.guard';
@@ -162,6 +163,79 @@ export class BlogsController {
     @Req() req: { user: CurrentUser },
   ) {
     return await this.blogsService.updateBlog(id, updateBlogDto, req.user);
+  }
+
+  @Post(':id/publish')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Publish a managed blog',
+    description: 'Moves a draft or scheduled blog into the published state.',
+  })
+  @ApiParam({ name: 'id', description: 'Blog uuid' })
+  @ApiResponse({ status: 200, description: 'Blog published successfully' })
+  async publishBlog(@Param('id') id: string, @Req() req: { user: CurrentUser }) {
+    return await this.blogsService.publishBlog(id, req.user);
+  }
+
+  @Post(':id/unpublish')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Unpublish a managed blog',
+    description: 'Moves a published or scheduled blog back to draft.',
+  })
+  @ApiParam({ name: 'id', description: 'Blog uuid' })
+  @ApiResponse({ status: 200, description: 'Blog unpublished successfully' })
+  async unpublishBlog(@Param('id') id: string, @Req() req: { user: CurrentUser }) {
+    return await this.blogsService.unpublishBlog(id, req.user);
+  }
+
+  @Post(':id/schedule')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Schedule a managed blog',
+    description: 'Stores a future publish time and moves the blog to scheduled.',
+  })
+  @ApiParam({ name: 'id', description: 'Blog uuid' })
+  @ApiBody({ type: ScheduleBlogDto })
+  @ApiResponse({ status: 200, description: 'Blog scheduled successfully' })
+  async scheduleBlog(
+    @Param('id') id: string,
+    @Body() scheduleBlogDto: ScheduleBlogDto,
+    @Req() req: { user: CurrentUser },
+  ) {
+    return await this.blogsService.scheduleBlog(id, scheduleBlogDto, req.user);
+  }
+
+  @Get(':id/revisions')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'List safe revision metadata for a managed blog',
+  })
+  @ApiParam({ name: 'id', description: 'Blog uuid' })
+  @ApiResponse({ status: 200, description: 'Blog revisions returned successfully' })
+  async listRevisions(@Param('id') id: string, @Req() req: { user: CurrentUser }) {
+    return await this.blogsService.listRevisions(id, req.user);
+  }
+
+  @Post(':id/revisions/:revisionId/restore')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Restore a managed blog from a revision',
+  })
+  @ApiParam({ name: 'id', description: 'Blog uuid' })
+  @ApiParam({ name: 'revisionId', description: 'Revision uuid' })
+  @ApiResponse({ status: 200, description: 'Blog revision restored successfully' })
+  async restoreRevision(
+    @Param('id') id: string,
+    @Param('revisionId') revisionId: string,
+    @Req() req: { user: CurrentUser },
+  ) {
+    return await this.blogsService.restoreRevision(id, revisionId, req.user);
   }
 
   @Delete(':id')

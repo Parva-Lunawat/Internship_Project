@@ -2,8 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getMyBlogs, deleteMyBlog, BlogsApiResponse } from "@/src/lib/api/blogsApi";
-import { Search, Edit, Trash2, Eye, Loader2, FileText, Calendar } from "lucide-react";
+import {
+  BlogPost,
+  BlogRevision,
+  getMyBlogs,
+  deleteMyBlog,
+  BlogsApiResponse,
+  publishMyBlog,
+  unpublishMyBlog,
+  listBlogRevisions,
+  restoreBlogRevision,
+} from "@/src/lib/api/blogsApi";
+import { Search, Edit, Trash2, Eye, Loader2, FileText, Calendar, History } from "lucide-react";
 import Link from "next/link";
 import Pagination from "@/src/app/blogs/Pagination";
 
@@ -14,7 +24,7 @@ export default function MyBlogsPage() {
   // URL-driven values
   const currentPage = Number(searchParams.get("page")) || 1;
   const currentQuery = searchParams.get("query") || "";
-  const currentStatus = (searchParams.get("status") as 'draft' | 'published' | '') || "";
+  const currentStatus = (searchParams.get("status") as BlogPost['status'] | '') || "";
   const currentTag = searchParams.get("tag") || "";
 
   const [blogsData, setBlogsData] = useState<BlogsApiResponse | null>(null);
@@ -22,10 +32,14 @@ export default function MyBlogsPage() {
 
   // Local form states
   const [search, setSearch] = useState(currentQuery);
-  const [status, setStatus] = useState(currentStatus);
+  const [status, setStatus] = useState<BlogPost['status'] | ''>(currentStatus);
   const [tag, setTag] = useState(currentTag);
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [publishingId, setPublishingId] = useState<string | null>(null);
+  const [revisionBlogId, setRevisionBlogId] = useState<string | null>(null);
+  const [revisions, setRevisions] = useState<BlogRevision[]>([]);
+  const [revisionsLoading, setRevisionsLoading] = useState(false);
 
   // Sync local form state when URL changes (e.g., browser back/forward)
   useEffect(() => {
@@ -89,6 +103,36 @@ export default function MyBlogsPage() {
   const handleEdit = (blogId: string) => {
     router.push(`/write?id=${blogId}`);
   };
+  const refreshAfterAction = async (action: () => Promise<unknown>, blogId: string) => {
+    setPublishingId(blogId);
+    try {
+      await action();
+      await fetchBlogs();
+    } finally {
+      setPublishingId(null);
+    }
+  };
+  const toggleRevisions = async (blogId: string) => {
+    if (revisionBlogId === blogId) {
+      setRevisionBlogId(null);
+      setRevisions([]);
+      return;
+    }
+    setRevisionBlogId(blogId);
+    setRevisionsLoading(true);
+    try {
+      const payload = await listBlogRevisions(blogId);
+      setRevisions(payload.revisions);
+    } finally {
+      setRevisionsLoading(false);
+    }
+  };
+  const handleRestore = async (blogId: string, revisionId: string) => {
+    if (!confirm("Restore this revision? Current content will be replaced.")) return;
+    await refreshAfterAction(() => restoreBlogRevision(blogId, revisionId), blogId);
+    const payload = await listBlogRevisions(blogId);
+    setRevisions(payload.revisions);
+  };
 
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -109,10 +153,11 @@ export default function MyBlogsPage() {
             <select
               className="min-w-[120px] appearance-none rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm transition-all focus:border-black focus:outline-none focus:ring-2 focus:ring-black/5 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-100 dark:focus:border-sky-400 dark:focus:ring-sky-400/20"
               value={status}
-              onChange={(e) => setStatus(e.target.value as "draft" | "published" | "")}
+              onChange={(e) => setStatus(e.target.value as BlogPost["status"] | "")}
             >
               <option value="">All Status</option>
               <option value="published">Published</option>
+              <option value="scheduled">Scheduled</option>
               <option value="draft">Draft</option>
             </select>
 
@@ -154,7 +199,7 @@ export default function MyBlogsPage() {
               <div className="aspect-video relative overflow-hidden bg-gray-100 border-b border-gray-200 dark:border-gray-800 dark:bg-gray-900">
                 <img src={blog.coverImage} alt={blog.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" />
                 <div className="absolute top-4 right-4 focus:outline-none">
-                  <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${blog.status === 'published' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'
+                  <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${blog.status === 'published' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : blog.status === 'scheduled' ? 'bg-sky-50 text-sky-600 border-sky-100' : 'bg-amber-50 text-amber-600 border-amber-100'
                     }`}>
                     {blog.status}
                   </span>
@@ -164,7 +209,11 @@ export default function MyBlogsPage() {
               <div className="p-5 flex flex-col flex-1">
                 <div className="mb-2 flex items-center text-[10px] font-bold uppercase tracking-tight text-gray-400 dark:text-gray-500">
                   <Calendar className="h-3 w-3 mr-1" />
-                  {new Date(blog.createdAt).toLocaleDateString()}
+                  {blog.status === "scheduled" && blog.scheduledPublishAt
+                    ? `Scheduled ${new Date(blog.scheduledPublishAt).toLocaleString()}`
+                    : blog.publishedAt
+                      ? `Published ${blog.publishedAt}`
+                      : `Updated ${new Date(blog.updatedAt).toLocaleDateString()}`}
                 </div>
 
                 <h3 className="text-lg font-bold leading-tight mb-2">
@@ -193,6 +242,30 @@ export default function MyBlogsPage() {
                   </Link>
                   )}
                   <div className="flex gap-1">
+                    {blog.status !== "published" ? (
+                      <button
+                        onClick={() => refreshAfterAction(() => publishMyBlog(blog.id), blog.id)}
+                        disabled={publishingId === blog.id}
+                        className="rounded-lg border border-transparent px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-600 transition-all hover:border-emerald-100 hover:bg-white dark:hover:border-emerald-500/30 dark:hover:bg-slate-900"
+                      >
+                        Publish
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => refreshAfterAction(() => unpublishMyBlog(blog.id), blog.id)}
+                        disabled={publishingId === blog.id}
+                        className="rounded-lg border border-transparent px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-600 transition-all hover:border-amber-100 hover:bg-white dark:hover:border-amber-500/30 dark:hover:bg-slate-900"
+                      >
+                        Unpublish
+                      </button>
+                    )}
+                    <button
+                      onClick={() => toggleRevisions(blog.id)}
+                      className="rounded-lg border border-transparent p-2 text-gray-400 transition-all hover:border-gray-100 hover:bg-white hover:text-black dark:hover:border-gray-700 dark:hover:bg-slate-900 dark:hover:text-sky-200"
+                      aria-label="View revisions"
+                    >
+                      <History className="h-4 w-4" />
+                    </button>
                     <button
                       onClick={() => handleEdit(blog.id)}
                       className="rounded-lg border border-transparent p-2 text-gray-400 transition-all hover:border-gray-100 hover:bg-white hover:text-black dark:hover:border-gray-700 dark:hover:bg-slate-900 dark:hover:text-sky-200"
@@ -208,6 +281,32 @@ export default function MyBlogsPage() {
                     </button>
                   </div>
                 </div>
+                {revisionBlogId === blog.id ? (
+                  <div className="mt-4 rounded-xl border border-gray-100 bg-gray-50 p-3 text-xs dark:border-gray-800 dark:bg-slate-950">
+                    <p className="mb-2 font-bold uppercase tracking-widest text-gray-400">Revision history</p>
+                    {revisionsLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : revisions.length === 0 ? (
+                      <p className="text-gray-500">No revisions yet.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {revisions.map((revision) => (
+                          <div key={revision.id} className="flex items-center justify-between gap-2">
+                            <span className="truncate text-gray-500">
+                              {revision.action} by {revision.editor?.name ?? "Unknown"} on {new Date(revision.createdAt).toLocaleString()}
+                            </span>
+                            <button
+                              onClick={() => handleRestore(blog.id, revision.id)}
+                              className="font-bold text-gray-900 underline dark:text-sky-300"
+                            >
+                              Restore
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : null}
               </div>
             </div>
           ))}

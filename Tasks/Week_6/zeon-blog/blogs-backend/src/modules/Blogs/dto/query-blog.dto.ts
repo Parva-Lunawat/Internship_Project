@@ -1,7 +1,7 @@
 import { IsInt, Min, IsEnum, IsOptional, IsString, Max } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { BlogStatus } from '../entities/blogs.entities';
+import { BlogStatus, BlogVisibility } from '../entities/blogs.entities';
 
 export class QueryBlogsDto {
   @ApiPropertyOptional({ example: 1 })
@@ -43,4 +43,12 @@ export class QueryBlogsDto {
   @IsOptional()
   @IsEnum(BlogStatus)
   status?: BlogStatus;
+
+  @ApiPropertyOptional({
+    enum: BlogVisibility,
+    description: 'Visibility filter for internal editorial views.',
+  })
+  @IsOptional()
+  @IsEnum(BlogVisibility)
+  visibility?: BlogVisibility;
 }

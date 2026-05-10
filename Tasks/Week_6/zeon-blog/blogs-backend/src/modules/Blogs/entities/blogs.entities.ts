@@ -30,7 +30,13 @@ import { Tag } from './tag.entities';
 
 export enum BlogStatus {
   DRAFT = 'draft',
+  SCHEDULED = 'scheduled',
   PUBLISHED = 'published',
+}
+
+export enum BlogVisibility {
+  PUBLIC = 'public',
+  UNLISTED = 'unlisted',
 }
 
 @Entity({ name: 'blogs' })
@@ -57,8 +63,29 @@ export class Blog {
   @Column({ type: 'enum', enum: BlogStatus, default: BlogStatus.DRAFT })
   status: BlogStatus;
 
+  @Column({ type: 'enum', enum: BlogVisibility, default: BlogVisibility.PUBLIC })
+  visibility: BlogVisibility;
+
   @Column({ type: 'datetime', nullable: true })
   publishedAt: Date | null;
+
+  @Column({ type: 'datetime', nullable: true })
+  scheduledPublishAt: Date | null;
+
+  @Column({ type: 'int', default: 1 })
+  readingTimeMinutes: number;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  featuredImageAlt: string | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  metaTitle: string | null;
+
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  metaDescription: string | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  canonicalPath: string | null;
 
   @ManyToOne(() => User, (user) => user.blogs, { nullable: false })
   author: User;

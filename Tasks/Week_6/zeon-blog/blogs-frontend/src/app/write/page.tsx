@@ -14,7 +14,8 @@ import {
     Globe, 
     Lock, 
     Loader2,
-    ArrowLeft
+    ArrowLeft,
+    Clock
 } from "lucide-react";
 import { toast } from "react-toastify";
 import Link from "next/link";
@@ -26,6 +27,24 @@ function getErrorMessage(err: unknown, fallback: string) {
         return err.message;
     }
     return fallback;
+}
+
+function toDateTimeLocal(value: string | null | undefined) {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.valueOf())) return "";
+    return date.toISOString().slice(0, 16);
+}
+
+function toIsoOrNull(value: string) {
+    if (!value) return null;
+    const date = new Date(value);
+    return Number.isNaN(date.valueOf()) ? null : date.toISOString();
+}
+
+function readingTime(content: string) {
+    const words = content.trim().split(/\s+/).filter(Boolean).length;
+    return Math.max(1, Math.ceil(words / 225));
 }
 
 export default function WriteBlogPage() {
@@ -54,8 +73,14 @@ function WriteBlogContent() {
         excerpt: "",
         content: "",
         coverImage: "",
+        featuredImageAlt: "",
         tags: "",
-        status: "draft" as "draft" | "published"
+        status: "draft" as "draft" | "scheduled" | "published",
+        scheduledPublishAt: "",
+        visibility: "public" as "public" | "unlisted",
+        metaTitle: "",
+        metaDescription: "",
+        canonicalPath: "",
     });
 
     const [loading, setLoading] = useState(false);
@@ -79,8 +104,14 @@ function WriteBlogContent() {
                         excerpt: blog.excerpt,
                         content: blog.content,
                         coverImage: blog.coverImage,
+                        featuredImageAlt: blog.featuredImageAlt ?? "",
                         tags: blog.tags.map(t => t.name).join(", "),
-                        status: blog.status
+                        status: blog.status,
+                        scheduledPublishAt: toDateTimeLocal(blog.scheduledPublishAt),
+                        visibility: blog.visibility ?? "public",
+                        metaTitle: blog.metaTitle ?? "",
+                        metaDescription: blog.metaDescription ?? "",
+                        canonicalPath: blog.canonicalPath ?? "",
                     });
                 } catch (err: unknown) {
                     toast.error(`Failed to fetch blog for editing: ${getErrorMessage(err, "Unknown error")}`);
@@ -109,16 +140,27 @@ function WriteBlogContent() {
                 .split(",")
                 .map(t => t.trim())
                 .filter(Boolean);
+            if (formData.status === "scheduled" && !formData.scheduledPublishAt) {
+                toast.error("Choose a future publish time before scheduling.");
+                return;
+            }
+            const payload = {
+                ...formData,
+                scheduledPublishAt: formData.status === "scheduled" ? toIsoOrNull(formData.scheduledPublishAt) : null,
+                featuredImageAlt: formData.featuredImageAlt || null,
+                metaTitle: formData.metaTitle || null,
+                metaDescription: formData.metaDescription || null,
+                canonicalPath: formData.canonicalPath || null,
+                tags: tagsArray,
+            };
 
             if (blogId) {
                 await updateMyBlog(blogId, {
-                    ...formData,
-                    tags: tagsArray
+                    ...payload,
                 });
             } else {
                 await createBlog({
-                    ...formData,
-                    tags: tagsArray
+                    ...payload,
                 });
             }
 
@@ -227,6 +269,20 @@ function WriteBlogContent() {
 
                                 <div className="space-y-2">
                                     <label className="flex items-center pl-1 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-300">
+                                        <ImageIcon className="mr-2 h-3 w-3 text-black dark:text-sky-300" />
+                                        Featured Image Alt Text
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Describe the featured image for accessibility"
+                                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm transition-all focus:border-black focus:outline-none focus:ring-2 focus:ring-black/5 dark:border-slate-600 dark:bg-[#09162d] dark:text-sky-50 dark:placeholder:text-slate-400 dark:focus:border-sky-400 dark:focus:ring-sky-400/20"
+                                        value={formData.featuredImageAlt}
+                                        onChange={(e) => setFormData({...formData, featuredImageAlt: e.target.value})}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="flex items-center pl-1 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-300">
                                         <Hash className="mr-2 h-3 w-3 text-black dark:text-sky-300" />
                                         Tags
                                     </label>
@@ -258,9 +314,20 @@ function WriteBlogContent() {
                                         </button>
                                         <button
                                             type="button"
+                                            onClick={() => setFormData({...formData, status: 'scheduled'})}
+                                            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                                                formData.status === 'scheduled'
+                                                    ? "bg-white text-black shadow-sm dark:bg-slate-800 dark:text-sky-100"
+                                                    : "text-gray-400 hover:text-gray-600 dark:text-slate-400 dark:hover:text-slate-200"
+                                            }`}
+                                        >
+                                            Schedule
+                                        </button>
+                                        <button
+                                            type="button"
                                             onClick={() => setFormData({...formData, status: 'published'})}
                                             className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
-                                                formData.status === 'published' 
+                                                formData.status === 'published'
                                                     ? "bg-black text-white shadow-sm dark:bg-sky-500 dark:text-slate-950" 
                                                     : "text-gray-400 hover:text-gray-600 dark:text-slate-400 dark:hover:text-slate-200"
                                             }`}
@@ -268,6 +335,60 @@ function WriteBlogContent() {
                                             Publish
                                         </button>
                                     </div>
+                                </div>
+                                {formData.status === "scheduled" ? (
+                                    <div className="space-y-2">
+                                        <label className="flex items-center pl-1 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-300">
+                                            <Clock className="mr-2 h-3 w-3 text-black dark:text-sky-300" />
+                                            Scheduled Publish Time
+                                        </label>
+                                        <input
+                                            type="datetime-local"
+                                            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm transition-all focus:border-black focus:outline-none focus:ring-2 focus:ring-black/5 dark:border-slate-600 dark:bg-[#09162d] dark:text-sky-50 dark:focus:border-sky-400 dark:focus:ring-sky-400/20"
+                                            value={formData.scheduledPublishAt}
+                                            onChange={(e) => setFormData({...formData, scheduledPublishAt: e.target.value})}
+                                        />
+                                    </div>
+                                ) : null}
+                                <div className="space-y-3 pt-2">
+                                    <label className="flex items-center pl-1 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-300">
+                                        <Globe className="mr-2 h-3 w-3 text-black dark:text-sky-300" />
+                                        Visibility
+                                    </label>
+                                    <select
+                                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm transition-all focus:border-black focus:outline-none focus:ring-2 focus:ring-black/5 dark:border-slate-600 dark:bg-[#09162d] dark:text-sky-50 dark:focus:border-sky-400 dark:focus:ring-sky-400/20"
+                                        value={formData.visibility}
+                                        onChange={(e) => setFormData({...formData, visibility: e.target.value as "public" | "unlisted"})}
+                                    >
+                                        <option value="public">Public</option>
+                                        <option value="unlisted">Unlisted</option>
+                                    </select>
+                                </div>
+                                <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 text-xs text-gray-600 dark:border-slate-700 dark:bg-[#09162d] dark:text-slate-300">
+                                    Estimated reading time: <strong>{readingTime(formData.content)} min</strong>
+                                </div>
+                                <div className="space-y-4 rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-slate-700 dark:bg-[#09162d]">
+                                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-300">SEO</h3>
+                                    <input
+                                        type="text"
+                                        placeholder="Meta title"
+                                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm transition-all focus:border-black focus:outline-none focus:ring-2 focus:ring-black/5 dark:border-slate-600 dark:bg-[#071224] dark:text-sky-50"
+                                        value={formData.metaTitle}
+                                        onChange={(e) => setFormData({...formData, metaTitle: e.target.value})}
+                                    />
+                                    <textarea
+                                        placeholder="Meta description"
+                                        className="min-h-[90px] w-full resize-none rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm transition-all focus:border-black focus:outline-none focus:ring-2 focus:ring-black/5 dark:border-slate-600 dark:bg-[#071224] dark:text-sky-50"
+                                        value={formData.metaDescription}
+                                        onChange={(e) => setFormData({...formData, metaDescription: e.target.value})}
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="/blogs/custom-canonical-path"
+                                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 font-mono text-sm transition-all focus:border-black focus:outline-none focus:ring-2 focus:ring-black/5 dark:border-slate-600 dark:bg-[#071224] dark:text-sky-50"
+                                        value={formData.canonicalPath}
+                                        onChange={(e) => setFormData({...formData, canonicalPath: e.target.value})}
+                                    />
                                 </div>
                                 <div className="space-y-4">
                                     <label className="flex items-center pl-1 text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-300">

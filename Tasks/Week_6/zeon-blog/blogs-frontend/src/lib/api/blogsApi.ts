@@ -15,14 +15,34 @@ export type BlogPost = {
     title: string;
     excerpt: string;
     coverImage: string;
+    featuredImageAlt: string | null;
     content: string;
     tags: BlogTags[];
     publishedAt: string | null;
-    status: 'draft' | 'published';
+    scheduledPublishAt: string | null;
+    readingTimeMinutes: number;
+    metaTitle: string | null;
+    metaDescription: string | null;
+    canonicalPath: string | null;
+    visibility: 'public' | 'unlisted';
+    status: 'draft' | 'scheduled' | 'published';
     commentCount?: number;
     author: BlogAuthor;
     createdAt: string;
     updatedAt: string;
+};
+
+export type BlogRevision = {
+    id: string;
+    blogId: string;
+    action: 'create' | 'update' | 'publish' | 'unpublish' | 'schedule' | 'restore';
+    title: string;
+    pageTitle: string;
+    status: BlogPost['status'];
+    visibility: BlogPost['visibility'];
+    readingTimeMinutes: number;
+    createdAt: string;
+    editor: { id: string; name: string } | null;
 };
 
 export type BlogsApiResponse = {
@@ -42,6 +62,20 @@ export type DeleteBlogResponse = {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1';
 const formatDate = (date: string | null) => date ? new Date(date).toISOString().split('T')[0] : null;
+
+function normalizeBlog(payload: BlogPost): BlogPost {
+    return {
+        ...payload,
+        featuredImageAlt: payload.featuredImageAlt ?? null,
+        scheduledPublishAt: payload.scheduledPublishAt ?? null,
+        readingTimeMinutes: payload.readingTimeMinutes ?? 1,
+        metaTitle: payload.metaTitle ?? null,
+        metaDescription: payload.metaDescription ?? null,
+        canonicalPath: payload.canonicalPath ?? `/blogs/${payload.pageTitle}`,
+        visibility: payload.visibility ?? 'public',
+        publishedAt: formatDate(payload.publishedAt),
+    };
+}
 
 function extractErrorMessage(errorData: unknown): string | null {
     if (!errorData || typeof errorData !== "object") {
@@ -96,30 +130,25 @@ export async function getPublishedBlogs(params: { page: number; pageSize: number
     const payload = await parseResponse<BlogsApiResponse>(response);
     return {
         ...payload,
-        blogs: payload.blogs.map((blog: BlogPost) => ({
-            ...blog,
-            publishedAt: formatDate(blog.publishedAt),
-        })),
+        blogs: payload.blogs.map(normalizeBlog),
     };
 }
 
 export async function getPublishedPostByPageTitle(pageTitle: string): Promise<BlogPost> {
     const response = await fetch(`${API_BASE_URL}/blogs/${pageTitle}`, { method: 'GET', cache: 'no-store' });
     const payload = await parseResponse<BlogPost>(response);
-    return {
-        ...payload,
-        publishedAt: formatDate(payload.publishedAt),
-    };
+    return normalizeBlog(payload);
 }
 
 // Get current user's blogs
-export async function getMyBlogs(params?: { page?: number; pageSize?: number; query?: string; tag?: string; status?: 'draft' | 'published'; }): Promise<BlogsApiResponse> {
+export async function getMyBlogs(params?: { page?: number; pageSize?: number; query?: string; tag?: string; status?: BlogPost['status']; visibility?: BlogPost['visibility']; }): Promise<BlogsApiResponse> {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set('page', String(params.page));
     if (params?.pageSize) searchParams.set('pageSize', String(params.pageSize));
     if (params?.query?.trim()) searchParams.set('query', params.query.trim());
     if (params?.tag?.trim()) searchParams.set('tag', params.tag.trim());
     if (params?.status) searchParams.set('status', params.status);
+    if (params?.visibility) searchParams.set('visibility', params.visibility);
 
     const queryString = searchParams.toString();
     const url = queryString
@@ -135,10 +164,7 @@ export async function getMyBlogs(params?: { page?: number; pageSize?: number; qu
     const payload = await parseResponse<BlogsApiResponse>(response);
     return {
         ...payload,
-        blogs: payload.blogs.map((blog: BlogPost) => ({
-            ...blog,
-            publishedAt: formatDate(blog.publishedAt),
-        })),
+        blogs: payload.blogs.map(normalizeBlog),
     };
 }
 
@@ -150,15 +176,15 @@ export async function getMyBlogById(blogId: string): Promise<BlogPost> {
     });
 
     const payload = await parseResponse<BlogPost>(response);
-    return {
-        ...payload,
-        publishedAt: formatDate(payload.publishedAt),
-    };
+    return normalizeBlog(payload);
 }
 
 export async function createBlog(blogData: {
     pageTitle: string; title: string; excerpt: string;
-    content: string; coverImage: string; tags: string[]; status: 'draft' | 'published';
+    content: string; coverImage: string; tags: string[]; status: BlogPost['status'];
+    featuredImageAlt?: string | null; scheduledPublishAt?: string | null;
+    metaTitle?: string | null; metaDescription?: string | null; canonicalPath?: string | null;
+    visibility?: BlogPost['visibility'];
 }): Promise<BlogPost> {
     const response = await fetch(`${API_BASE_URL}/blogs`, {
         method: 'POST',
@@ -171,17 +197,17 @@ export async function createBlog(blogData: {
     });
 
     const payload = await parseResponse<BlogPost>(response);
-    return {
-        ...payload,
-        publishedAt: formatDate(payload.publishedAt),
-    };
+    return normalizeBlog(payload);
 }
 
 export async function updateMyBlog(
     blogId: string,
     blogData: Partial<{
         pageTitle: string; title: string; excerpt: string;
-        content: string; coverImage: string; tags: string[]; status: 'draft' | 'published';
+        content: string; coverImage: string; tags: string[]; status: BlogPost['status'];
+        featuredImageAlt: string | null; scheduledPublishAt: string | null;
+        metaTitle: string | null; metaDescription: string | null; canonicalPath: string | null;
+        visibility: BlogPost['visibility'];
     }>,
 ): Promise<BlogPost> {
     const response = await fetch(`${API_BASE_URL}/blogs/${blogId}`, {
@@ -194,10 +220,56 @@ export async function updateMyBlog(
         cache: 'no-store',
     });
     const payload = await parseResponse<BlogPost>(response);
-    return {
-        ...payload,
-        publishedAt: formatDate(payload.publishedAt),
-    };
+    return normalizeBlog(payload);
+}
+
+export async function publishMyBlog(blogId: string): Promise<BlogPost> {
+    const response = await fetch(`${API_BASE_URL}/blogs/${blogId}/publish`, {
+        method: 'POST',
+        credentials: 'include',
+        cache: 'no-store',
+    });
+    return normalizeBlog(await parseResponse<BlogPost>(response));
+}
+
+export async function unpublishMyBlog(blogId: string): Promise<BlogPost> {
+    const response = await fetch(`${API_BASE_URL}/blogs/${blogId}/unpublish`, {
+        method: 'POST',
+        credentials: 'include',
+        cache: 'no-store',
+    });
+    return normalizeBlog(await parseResponse<BlogPost>(response));
+}
+
+export async function scheduleMyBlog(blogId: string, scheduledPublishAt: string): Promise<BlogPost> {
+    const response = await fetch(`${API_BASE_URL}/blogs/${blogId}/schedule`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ scheduledPublishAt }),
+        credentials: 'include',
+        cache: 'no-store',
+    });
+    return normalizeBlog(await parseResponse<BlogPost>(response));
+}
+
+export async function listBlogRevisions(blogId: string): Promise<{ revisions: BlogRevision[]; meta: { total: number; limit: number } }> {
+    const response = await fetch(`${API_BASE_URL}/blogs/${blogId}/revisions`, {
+        method: 'GET',
+        credentials: 'include',
+        cache: 'no-store',
+    });
+    return parseResponse(response);
+}
+
+export async function restoreBlogRevision(blogId: string, revisionId: string): Promise<BlogPost> {
+    const response = await fetch(`${API_BASE_URL}/blogs/${blogId}/revisions/${revisionId}/restore`, {
+        method: 'POST',
+        credentials: 'include',
+        cache: 'no-store',
+    });
+    return normalizeBlog(await parseResponse<BlogPost>(response));
 }
 
 export async function deleteMyBlog(

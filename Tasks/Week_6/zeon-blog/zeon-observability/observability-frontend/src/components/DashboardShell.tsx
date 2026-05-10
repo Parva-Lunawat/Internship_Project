@@ -23,7 +23,7 @@ const NAV_ITEMS = [
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, resolvedTheme, toggleTheme } = useTheme();
 
   return (
     <DashboardFilterProvider>
@@ -56,7 +56,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             onClick={toggleTheme}
             style={{ marginTop: 16, width: "100%" }}
           >
-            {theme === "dark" ? "Light theme" : "Dark theme"}
+            Theme: {theme === "system" ? `System (${resolvedTheme})` : theme}
           </button>
 
           <button

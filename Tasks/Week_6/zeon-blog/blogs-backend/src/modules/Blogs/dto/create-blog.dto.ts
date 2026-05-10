@@ -5,12 +5,12 @@ import {
   ArrayUnique,
   IsOptional,
   IsString,
-  IsUrl,
+  IsISO8601,
   MaxLength,
   MinLength,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { BlogStatus } from '../entities/blogs.entities';
+import { BlogStatus, BlogVisibility } from '../entities/blogs.entities';
 
 export class CreateBlogDto {
   @ApiProperty({
@@ -72,4 +72,51 @@ export class CreateBlogDto {
   @IsOptional()
   @IsEnum(BlogStatus)
   status?: BlogStatus;
+
+  @ApiPropertyOptional({
+    enum: BlogVisibility,
+    example: BlogVisibility.PUBLIC,
+  })
+  @IsOptional()
+  @IsEnum(BlogVisibility)
+  visibility?: BlogVisibility;
+
+  @ApiPropertyOptional({
+    description: 'Future publish date/time used when status is scheduled.',
+  })
+  @IsOptional()
+  @IsISO8601()
+  scheduledPublishAt?: string;
+
+  @ApiPropertyOptional({
+    description: 'Accessible alternative text for the featured image.',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  featuredImageAlt?: string;
+
+  @ApiPropertyOptional({
+    description: 'Search/share title override.',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  metaTitle?: string;
+
+  @ApiPropertyOptional({
+    description: 'Search/share description override.',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  metaDescription?: string;
+
+  @ApiPropertyOptional({
+    description: 'Canonical path override for SEO metadata.',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  canonicalPath?: string;
 }
