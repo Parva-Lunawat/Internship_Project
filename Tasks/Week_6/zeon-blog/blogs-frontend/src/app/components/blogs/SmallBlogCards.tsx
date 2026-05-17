@@ -10,7 +10,7 @@ export default function CompactCard({ post }: { post: BlogPost }) {
 
   return (
     <Link
-      href={`/blogs/${post.pageTitle}`}
+      href={`/blogs/post?pageTitle=${encodeURIComponent(post.pageTitle)}`}
       className="group grid h-full grid-cols-[110px_1fr] gap-4 rounded-2xl border border-gray-200 p-4 transition hover:bg-gray-50 dark:border-gray-800 dark:bg-slate-900 dark:hover:bg-slate-800"
     >
       <div className="h-full w-full aspect-[3/1] overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-900">

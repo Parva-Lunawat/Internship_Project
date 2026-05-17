@@ -1,17 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import type { ComponentPropsWithoutRef } from "react";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { ArrowLeft, Eye, Loader2 } from "lucide-react";
 import { BlogPost, getMyBlogById } from "@/src/lib/api/blogsApi";
 import { resolveImageUrl } from "@/src/lib/utils/urlUtils";
 
 export default function DraftPreviewPage() {
-  const params = useParams<{ id: string }>();
-  const blogId = params?.id;
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-60 items-center justify-center">
+          <Loader2 className="h-10 w-10 animate-spin text-gray-500 dark:text-sky-300" />
+        </div>
+      }
+    >
+      <DraftPreviewContent />
+    </Suspense>
+  );
+}
+
+function DraftPreviewContent() {
+  const searchParams = useSearchParams();
+  const blogId = searchParams.get("id")?.trim() || "";
   const [blog, setBlog] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +50,7 @@ export default function DraftPreviewPage() {
       }
     };
 
-    loadBlog();
+    void loadBlog();
   }, [blogId]);
 
   if (loading) {

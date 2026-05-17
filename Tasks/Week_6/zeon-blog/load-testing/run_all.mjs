@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 
-const scenarios = [
+const defaultScenarios = [
   "public_blogs",
   "blog_detail",
   "login_burst",
@@ -14,6 +14,11 @@ const scenarios = [
   "comment_listing",
   "mixed_traffic",
 ];
+
+const scenarios = (process.env.SCENARIOS || defaultScenarios.join(","))
+  .split(",")
+  .map((name) => name.trim())
+  .filter(Boolean);
 
 const outDir = resolve(scriptDir, process.env.OUT_DIR || "bench-results");
 mkdirSync(outDir, { recursive: true });

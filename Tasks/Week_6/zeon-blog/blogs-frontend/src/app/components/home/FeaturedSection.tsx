@@ -1,4 +1,8 @@
-import { getPublishedBlogs } from "@/src/lib/api/blogsApi";
+"use client";
+
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+import { BlogPost, getPublishedBlogs } from "@/src/lib/api/blogsApi";
 import CompactCard from "../blogs/SmallBlogCards";
 import BigFeaturedCard from "../blogs/BigBlogCards";
 
@@ -91,10 +95,40 @@ import BigFeaturedCard from "../blogs/BigBlogCards";
 // }
 
 
-export default async function FeaturedPost() {
-  const posts = await getPublishedBlogs({page: 1, pageSize: 4});
-  const [featured, ...rest] = posts.blogs;
-  if (!featured) return null;
+export default function FeaturedPost() {
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadPosts = async () => {
+      try {
+        const response = await getPublishedBlogs({ page: 1, pageSize: 4 });
+        if (!cancelled) {
+          setPosts(response.blogs);
+          setError(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Unable to load featured blogs.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadPosts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const [featured, ...rest] = posts;
 
   return (
     <section className="space-y-6">
@@ -102,16 +136,30 @@ export default async function FeaturedPost() {
         <h1 className="text-3xl font-bold">Featured Blogs</h1>
         <p className="text-gray-600 italic font-bold dark:text-gray-300">The HOTTEST Posts out there!!!</p>
       </header>
-      <div className="grid gap-6 lg:grid-cols-3 items-stretch">
-        <div className="lg:col-span-2">
-          <BigFeaturedCard post={featured} />
+      {loading ? (
+        <div className="flex h-40 items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400 dark:text-gray-500" />
         </div>
-        <div className="flex flex-col gap-4">
-          {rest.slice(0, 3).map((post) => (
-            <CompactCard key={post.pageTitle} post={post} />
-          ))}
+      ) : error ? (
+        <p className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+          {error}
+        </p>
+      ) : !featured ? (
+        <p className="rounded-2xl border border-dashed border-gray-200 p-6 text-sm text-gray-500 dark:border-gray-800 dark:text-gray-400">
+          No featured posts are available yet.
+        </p>
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-3 items-stretch">
+          <div className="lg:col-span-2">
+            <BigFeaturedCard post={featured} />
+          </div>
+          <div className="flex flex-col gap-4">
+            {rest.slice(0, 3).map((post) => (
+              <CompactCard key={post.pageTitle} post={post} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }

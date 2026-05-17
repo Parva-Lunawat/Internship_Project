@@ -28,7 +28,7 @@ export default function BlogCard({ post }: { post: BlogPost }) {
 
   return (
     <div
-      onClick={() => router.push(`/blogs/${post.pageTitle}`)}
+      onClick={() => router.push(`/blogs/post?pageTitle=${encodeURIComponent(post.pageTitle)}`)}
       className="group block h-full cursor-pointer overflow-hidden rounded-2xl border border-gray-200 transition hover:bg-gray-50 dark:border-gray-800 dark:bg-slate-900 dark:hover:bg-slate-800"
     >
       <div className="aspect-[16/9] w-full overflow-hidden bg-gray-100 dark:bg-gray-900">
@@ -42,7 +42,7 @@ export default function BlogCard({ post }: { post: BlogPost }) {
       <div className="p-4">
         <div className="mb-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
           <Link
-            href={`/profile/${post.author.id}`}
+            href={`/profile?id=${encodeURIComponent(post.author.id)}`}
             className="relative z-10 font-medium hover:text-black hover:underline dark:hover:text-sky-300"
             onClick={(e) => e.stopPropagation()}
           >

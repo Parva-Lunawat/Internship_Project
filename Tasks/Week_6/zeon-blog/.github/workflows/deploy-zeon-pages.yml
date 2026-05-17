@@ -1,0 +1,120 @@
+name: Deploy Zeon Blogs to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/deploy-zeon-pages.yml
+      - blogs-frontend/**
+      - load-testing/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: blogs-frontend
+    env:
+      NEXT_PUBLIC_API_BASE_URL: ${{ vars.PUBLIC_API_BASE_URL }}
+      NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: blogs-frontend/package-lock.json
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build static frontend
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: blogs-frontend/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  load-test-public-pages:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run deployed public-page checks
+        env:
+          SITE_URL: ${{ needs.deploy.outputs.page_url }}
+          API_BASE_URL: ${{ vars.PUBLIC_API_BASE_URL }}
+          PAGE_TITLE: ${{ vars.LOAD_TEST_PAGE_TITLE }}
+          SCENARIOS: public_blogs
+          CONCURRENCY: 5
+          DURATION_SEC: 15
+          OUT_DIR: load-testing/bench-results/github-pages-public
+        run: node load-testing/run_all.mjs
+
+      - name: Run deployed blog-detail checks
+        if: ${{ vars.LOAD_TEST_PAGE_TITLE != '' || vars.PUBLIC_API_BASE_URL != '' }}
+        env:
+          SITE_URL: ${{ needs.deploy.outputs.page_url }}
+          API_BASE_URL: ${{ vars.PUBLIC_API_BASE_URL }}
+          PAGE_TITLE: ${{ vars.LOAD_TEST_PAGE_TITLE }}
+          SCENARIOS: blog_detail
+          CONCURRENCY: 5
+          DURATION_SEC: 15
+          OUT_DIR: load-testing/bench-results/github-pages-detail
+        run: node load-testing/run_all.mjs
+
+      - name: Run API-backed load scenarios against the deployed environment
+        if: ${{ vars.PUBLIC_API_BASE_URL != '' && secrets.LOAD_TEST_PASSWORD != '' }}
+        env:
+          SITE_URL: ${{ needs.deploy.outputs.page_url }}
+          API_BASE_URL: ${{ vars.PUBLIC_API_BASE_URL }}
+          PASSWORD: ${{ secrets.LOAD_TEST_PASSWORD }}
+          SCENARIOS: login_burst,write_burst,upload_burst,comment_creation_burst,comment_listing,mixed_traffic
+          CONCURRENCY: 3
+          DURATION_SEC: 10
+          OUT_DIR: load-testing/bench-results/github-pages-api
+        run: node load-testing/run_all.mjs
+
+      - name: Upload public load-test summaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: github-pages-load-results
+          path: load-testing/bench-results/github-pages-*

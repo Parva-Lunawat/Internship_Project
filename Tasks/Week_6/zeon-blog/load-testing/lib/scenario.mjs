@@ -1,7 +1,11 @@
 import { buildSummary } from "./stats.mjs";
 import { getEnvNumber, getEnvString } from "./http.mjs";
 
-export async function runScenario({ scenario, baseUrl, worker, setup }) {
+function normalizeUrl(url) {
+  return url.replace(/\/$/, "");
+}
+
+export async function runScenario({ scenario, apiBaseUrl, siteUrl, worker, setup }) {
   const concurrency = getEnvNumber("CONCURRENCY", 10);
   const durationSec = getEnvNumber("DURATION_SEC", 30);
   const outfile = process.env.OUTFILE;
@@ -11,8 +15,12 @@ export async function runScenario({ scenario, baseUrl, worker, setup }) {
   let totalRequests = 0;
 
   const ctx = {
-    baseUrl: baseUrl || getEnvString("BASE_URL", "http://localhost:5000/api/v1"),
+    apiBaseUrl: normalizeUrl(
+      apiBaseUrl || getEnvString("API_BASE_URL", getEnvString("BASE_URL", "http://localhost:5000/api/v1")),
+    ),
+    siteUrl: normalizeUrl(siteUrl || getEnvString("SITE_URL", "http://localhost:5173")),
   };
+  ctx.baseUrl = ctx.apiBaseUrl;
 
   if (setup) {
     await setup(ctx);

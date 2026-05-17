@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
@@ -13,13 +12,10 @@ export const metadata: Metadata = {
   description: "Blogging Platform made by Parva Lunawat",
 };
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col bg-white text-gray-900 transition-colors duration-300 dark:bg-slate-950 dark:text-gray-100`}>
+      <body className="flex min-h-screen flex-col bg-white text-gray-900 transition-colors duration-300 dark:bg-slate-950 dark:text-gray-100">
         <ReduxProvider>
           <ThemeProvider>
             <Navbar />

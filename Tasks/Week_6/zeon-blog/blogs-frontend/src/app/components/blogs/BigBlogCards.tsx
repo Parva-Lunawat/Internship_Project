@@ -10,7 +10,7 @@ export default function BigFeaturedCard({ post }: { post: BlogPost }) {
 
   return (
     <Link
-      href={`/blogs/${post.pageTitle}`}
+      href={`/blogs/post?pageTitle=${encodeURIComponent(post.pageTitle)}`}
       className="group block overflow-hidden rounded-2xl border border-gray-200 transition hover:bg-gray-50 dark:border-gray-800 dark:bg-slate-900 dark:hover:bg-slate-800"
     >
       <div className="aspect-[16/9] w-full overflow-hidden bg-gray-100 dark:bg-gray-900">

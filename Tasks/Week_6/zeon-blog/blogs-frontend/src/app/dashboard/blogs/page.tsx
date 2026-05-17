@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getMyBlogs, deleteMyBlog, BlogsApiResponse } from "@/src/lib/api/blogsApi";
 import { Search, Edit, Trash2, Eye, Loader2, FileText, Calendar } from "lucide-react";
@@ -8,6 +8,20 @@ import Link from "next/link";
 import Pagination from "@/src/app/blogs/Pagination";
 
 export default function MyBlogsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-64 items-center justify-center">
+          <Loader2 className="h-10 w-10 animate-spin text-black opacity-20 dark:text-white" />
+        </div>
+      }
+    >
+      <MyBlogsContent />
+    </Suspense>
+  );
+}
+
+function MyBlogsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -177,7 +191,7 @@ export default function MyBlogsPage() {
                 <div className="flex items-center justify-between border-t border-gray-50 pt-4 dark:border-gray-800">
                   {blog.status === "draft" ? (
                     <Link
-                      href={`/dashboard/blogs/preview/${blog.id}`}
+                      href={`/dashboard/blogs/preview?id=${encodeURIComponent(blog.id)}`}
                       className="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-400 transition-colors hover:text-black dark:text-gray-500 dark:hover:text-sky-300"
                     >
                       <Eye className="h-3 w-3 mr-1.5" />
@@ -185,7 +199,7 @@ export default function MyBlogsPage() {
                     </Link>
                   ) : (
                   <Link
-                    href={`/blogs/${blog.pageTitle}`}
+                    href={`/blogs/post?pageTitle=${encodeURIComponent(blog.pageTitle)}`}
                     className="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-400 transition-colors hover:text-black dark:text-gray-500 dark:hover:text-sky-300"
                   >
                     <Eye className="h-3 w-3 mr-1.5" />

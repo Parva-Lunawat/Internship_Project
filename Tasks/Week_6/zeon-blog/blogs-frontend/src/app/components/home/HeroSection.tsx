@@ -1,8 +1,10 @@
 export default function HeroSection() {
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
   return (
     <section className="relative overflow-hidden rounded-[2rem] border border-slate-200/80 py-14 md:py-20 dark:border-slate-700/80">
       <img
-        src="/hero-cover.svg"
+        src={`${basePath}/hero-cover.svg`}
         alt=""
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 h-full w-full object-cover"
