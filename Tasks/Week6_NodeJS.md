@@ -1,6 +1,4 @@
 ---
-layout: post
-title: TypeScript Comprehensive Notes
 ---
 
 Node.js is an open-source and cross-platform JavaScript runtime environment. Node.js runs the V8 JavaScript engine, Google Chrome's core, outside the browser.
