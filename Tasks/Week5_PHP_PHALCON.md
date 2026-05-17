@@ -1,3 +1,8 @@
+---
+layout: post
+title: TypeScript Comprehensive Notes
+---
+
 Phalcon Architecture
 - Model-View-Controller pattern design: -
     - MOdel: DB related actions, fields and other functions

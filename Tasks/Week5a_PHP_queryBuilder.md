@@ -1,3 +1,8 @@
+---
+layout: post
+title: TypeScript Comprehensive Notes
+---
+
 ## Basic query builder (Select style)
 - for otherr statements just import func from this and add diff toSql function
 - DB Connection using pdo

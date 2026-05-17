@@ -1,3 +1,8 @@
+---
+layout: post
+title: TypeScript Comprehensive Notes
+---
+
 ### 1. `$this->` (Object Instance)
 **Context:** Used inside a class to refer to a specific "row" or "instance" of that class.
 **Naming Convention:** CamelCase for classes (`Location`), snake_case for properties matching DB columns (`region_name`).

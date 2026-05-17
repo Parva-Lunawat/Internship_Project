@@ -1,3 +1,8 @@
+---
+layout: post
+title: TypeScript Comprehensive Notes
+---
+
 # ReactJS
 
 ### Important from JS 
