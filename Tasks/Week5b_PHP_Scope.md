@@ -1,6 +1,4 @@
 ---
-layout: post
-title: TypeScript Comprehensive Notes
 ---
 
 ### 1. `$this->` (Object Instance)
