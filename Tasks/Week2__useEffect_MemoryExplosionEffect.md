@@ -1,3 +1,8 @@
+---
+layout: post
+title: TypeScript Comprehensive Notes
+---
+
 In React, "mounting" and "unmounting" are not magic; they are just labels for when a component is added to or removed from the browser's Document Object Model (DOM).
 
 ### 1. Mounting: The "Setup" Phase

@@ -1,3 +1,8 @@
+---
+layout: post
+title: TypeScript Comprehensive Notes
+---
+
 NEXTJS
 
 layout.tsx is the topmost component of the application i.e. all other components are desccendents

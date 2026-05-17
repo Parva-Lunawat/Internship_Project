@@ -1,3 +1,8 @@
+---
+layout: post
+title: TypeScript Comprehensive Notes
+---
+
 Node.js is an open-source and cross-platform JavaScript runtime environment. Node.js runs the V8 JavaScript engine, Google Chrome's core, outside the browser.
 A Node.js app runs in a single process, without creating a new thread for every request:
     Node.js uses a single main flow of execution (thread) to manage all client requests, rather than dedicating a new, separate thread for each incoming request like traditional server architectures (such as Apache or Java-based servers).

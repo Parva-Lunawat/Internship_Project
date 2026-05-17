@@ -1,3 +1,8 @@
+---
+layout: post
+title: TypeScript Comprehensive Notes
+---
+
 Redux Notes
 
 The ALL Father of "useContext".

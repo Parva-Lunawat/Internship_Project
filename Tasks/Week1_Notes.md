@@ -1,3 +1,8 @@
+---
+layout: post
+title: TypeScript Comprehensive Notes
+---
+
 JavaScript How to: -
 
 Case Sensitive Lang

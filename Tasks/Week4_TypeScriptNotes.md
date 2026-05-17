@@ -1,4 +1,9 @@
 ---
+layout: post
+title: TypeScript Comprehensive Notes
+---
+
+---
 
 # 📘 TypeScript – Comprehensive Notes (Comment-Driven & Intuition-First)
 
